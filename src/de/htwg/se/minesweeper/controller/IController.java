@@ -6,6 +6,8 @@ import observer.IObservable;
 
 /**
  * @author Niels Boecker
+ * @author Mark Unger
+ * @author Aiham Abousaleh
  */
 public interface IController extends IObservable {
 

@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Niels Boecker
+ * @author Mark Unger
+ * @author Aiham Abousaleh
  */
 public class Controller extends Observable implements IController {
 

@@ -2,6 +2,8 @@ package de.htwg.se.minesweeper.model;
 
 /**
  * @author Niels Boecker
+ * @author Mark Unger
+ * @author Aiham Abousaleh
  */
 public class Cell {
 

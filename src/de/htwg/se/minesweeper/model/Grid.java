@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 /**
  * @author Niels Boecker
+ * @author Mark Unger
+ * @author Aiham Abousaleh
  */
 public class Grid {
 
