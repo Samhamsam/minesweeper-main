@@ -1,14 +1,9 @@
-plugins {
-  id "org.sonarqube" version "1.1"
-}
-
 repositories {
     mavenCentral()
 }
 
 apply plugin: "java"
 apply plugin: "idea"
-apply plugin: "org.sonarqube"
 apply plugin: "eclipse"
 apply plugin: "maven"
 apply plugin: "jacoco"
@@ -38,13 +33,4 @@ sourceSets {
 
 jar {
     manifest.attributes "Main-Class":"de.htwg.se.minesweeper"
-}
-  
-sonarqube {
-    properties {
-    property "sonar.projectName", "SE2016SS-11-MineSweeper"
-    property "sonar.projectKey", "htwg.se.mineSweeper"
-    property "sonar.projectVersion", "2.0"
-    property "sonar.java.coveragePlugin", "jacoco"
-  }
 }
