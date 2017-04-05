@@ -1,4 +1,4 @@
-package observer;
+package de.htwg.se.minesweeper.designpattern.observer;
 
 public interface IObservable {
 

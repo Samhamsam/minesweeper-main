@@ -1,9 +1,9 @@
 package de.htwg.se.minesweeper.controller.impl;
 
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
-import observer.Observable;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

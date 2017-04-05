@@ -1,8 +1,8 @@
 package de.htwg.se.minesweeper.aview.gui;
 
 import de.htwg.se.minesweeper.controller.IController;
-import observer.Event;
-import observer.IObserver;
+import de.htwg.se.minesweeper.designpattern.observer.Event;
+import de.htwg.se.minesweeper.designpattern.observer.IObserver;
 
 import javax.swing.*;
 import java.awt.*;
