@@ -1,9 +1,10 @@
 package de.htwg.se.minesweeper.aview.tui;
 
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.designpattern.observer.Event;
+import de.htwg.se.minesweeper.designpattern.observer.IObserver;
 import de.htwg.se.minesweeper.model.Cell;
-import observer.Event;
-import observer.IObserver;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

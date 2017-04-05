@@ -1,8 +1,8 @@
 package de.htwg.se.minesweeper.controller;
 
+import de.htwg.se.minesweeper.designpattern.observer.IObservable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
-import observer.IObservable;
 
 /**
  * @author Niels Boecker

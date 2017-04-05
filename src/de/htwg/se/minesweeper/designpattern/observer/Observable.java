@@ -1,4 +1,4 @@
-package observer;
+package de.htwg.se.minesweeper.designpattern.observer;
 
 import java.util.ArrayList;
 import java.util.List;
