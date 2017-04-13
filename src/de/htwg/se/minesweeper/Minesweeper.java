@@ -7,51 +7,50 @@ import de.htwg.se.minesweeper.controller.impl.Controller;
 
 import java.util.Scanner;
 
-
 public final class Minesweeper {
-// test push
-    private static Scanner scanner;
-    private TUI tui;
-    private GUI gui;
-    protected IController controller;
-    private static Minesweeper instance = null;
+	// test push
+	private static Scanner scanner;
+	private TUI tui;
+	private GUI gui;
+	protected IController controller;
+	private static Minesweeper instance = null;
 
-    private Minesweeper() {
-        // Injector inject = Guice.createInjector();
-        //controller = inject.getInstance(IController.class);
-        // TODO Mark: juice
-        controller = new Controller();
+	private Minesweeper() {
+		// Injector inject = Guice.createInjector();
+		// controller = inject.getInstance(IController.class);
+		// TODO Mark: juice
+		controller = new Controller();
 
-        tui = new TUI(controller);
-        gui = new GUI(controller);
-        tui.printTUI();
-    }
+		tui = new TUI(controller);
+		gui = new GUI(controller);
+		tui.printTUI();
+	}
 
-    public static Minesweeper getInstance() {
-        if (instance == null) {
-            instance = new Minesweeper();
-        }
-        return instance;
-    }
+	public static Minesweeper getInstance() {
+		if (instance == null) {
+			instance = new Minesweeper();
+		}
+		return instance;
+	}
 
-    public TUI getTUI() {
-        return tui;
-    }
+	public TUI getTUI() {
+		return tui;
+	}
 
-    public IController getController() {
-        return controller;
-    }
+	public IController getController() {
+		return controller;
+	}
 
-    public static void main(final String[] args) {
+	public static void main(final String[] args) {
 
-        Minesweeper game = Minesweeper.getInstance();
+		Minesweeper game = Minesweeper.getInstance();
 
-        boolean loop = true;
-        scanner = new Scanner(System.in);
+		boolean loop = true;
+		scanner = new Scanner(System.in);
 
-        while (loop) {
-            loop = game.getTUI().processInput(scanner.next());
-        }
-    }
+		while (loop) {
+			loop = game.getTUI().processInput(scanner.next());
+		}
+	}
 
 }

@@ -11,50 +11,41 @@ import de.htwg.se.minesweeper.model.Grid;
  */
 public interface IController extends IObservable {
 
-    void quit();
+	void quit();
 
-    void startNewGame();
+	void startNewGame();
 
-    void startNewGame(String gridSize, String difficulty);
+	void startNewGame(String gridSize, String difficulty);
 
-    void startNewGame(int numberOfRowsAndCols, int numberOfMines);
+	void startNewGame(int numberOfRowsAndCols, int numberOfMines);
 
-    void commitNewSettingsAndRestart(int numberOfRowsAndCols, int numberOfMines);
+	void commitNewSettingsAndRestart(int numberOfRowsAndCols, int numberOfMines);
 
-    void revealCell(int row, int col);
+	void revealCell(int row, int col);
 
-    void revealCell(Cell cell);
+	void revealCell(Cell cell);
 
-    void recursiveRevealCell(Cell cell);
+	void recursiveRevealCell(Cell cell);
 
-    boolean isFirstRound();
+	boolean isFirstRound();
 
-    void toggleFlag(int row, int col);
+	void toggleFlag(int row, int col);
 
-    boolean allCellsAreRevealed();
+	boolean allCellsAreRevealed();
 
-    void touch();
+	void touch();
 
-    void setStateAndNotifyObservers(State state);
+	void setStateAndNotifyObservers(State state);
 
-    State getState();
+	State getState();
 
-    String getHelpText();
+	String getHelpText();
 
-    Grid getGrid();
+	Grid getGrid();
 
-    long getElapsedTimeSeconds();
+	long getElapsedTimeSeconds();
 
-    enum State {
-        NEW_GAME,
-        INFO_TEXT,
-        REVEAL_CELL,
-        TOGGLE_FLAG,
-        HELP_TEXT,
-        GAME_WON,
-        GAME_LOST,
-        ERROR,
-        CHANGE_SETTINGS_ACTIVATED,
-        CHANGE_SETTINGS_SUCCESS
-    }
+	enum State {
+		NEW_GAME, INFO_TEXT, REVEAL_CELL, TOGGLE_FLAG, HELP_TEXT, GAME_WON, GAME_LOST, ERROR, CHANGE_SETTINGS_ACTIVATED, CHANGE_SETTINGS_SUCCESS
+	}
 }

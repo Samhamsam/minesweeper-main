@@ -15,247 +15,241 @@ import static de.htwg.se.minesweeper.controller.IController.State.*;
 
 public class TUI implements IObserver {
 
-    private static final Logger LOGGER = LogManager.getRootLogger(); //LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getRootLogger(); // LogManager.getLogger();
 
-    private static final String HELP_COMMAND = "h";
-    private static final String NEW_GAME_COMMAND = "n";
-    private static final String CHANGE_SETTINGS_COMMAND = "c";
-    private static final String QUIT_COMMAND = "q";
+	private static final String HELP_COMMAND = "h";
+	private static final String NEW_GAME_COMMAND = "n";
+	private static final String CHANGE_SETTINGS_COMMAND = "c";
+	private static final String QUIT_COMMAND = "q";
 
-    private String lastUserInput = "";
+	private String lastUserInput = "";
 
-    private IController controller;
+	private IController controller;
 
-    public TUI(IController controller) {
-        this.controller = controller;
-        controller.addObserver(this);
-    }
+	public TUI(IController controller) {
+		this.controller = controller;
+		controller.addObserver(this);
+	}
 
-    public boolean processInput(String input) {
-        lastUserInput = input;
-        List<String> inputParts = Arrays.asList(input.split(","));
+	public boolean processInput(String input) {
+		lastUserInput = input;
+		List<String> inputParts = Arrays.asList(input.split(","));
 
-        String userInput = inputParts.get(0);
+		String userInput = inputParts.get(0);
 
-        /*if (controller.getState() == GAME_LOST || controller.getState() == GAME_WON) {
+		/*
+		 * if (controller.getState() == GAME_LOST || controller.getState() ==
+		 * GAME_WON) {
+		 * 
+		 * System.out.println("HAllo!");
+		 * 
+		 * switch (userInput) { case QUIT_COMMAND: return runQuitCommand();
+		 * 
+		 * case NEW_GAME_COMMAND: newGameAction(); break;
+		 * 
+		 * default: showHelpAction(); break; } }
+		 * 
+		 * else
+		 */
+		switch (userInput) {
 
-            System.out.println("HAllo!");
+		case QUIT_COMMAND:
+			return runQuitCommand();
 
-            switch (userInput) {
-                case QUIT_COMMAND:
-                    return runQuitCommand();
+		case NEW_GAME_COMMAND:
+			newGameAction();
+			break;
 
-                case NEW_GAME_COMMAND:
-                    newGameAction();
-                    break;
+		case HELP_COMMAND:
+			showHelpAction();
+			break;
 
-                default:
-                    showHelpAction();
-                    break;
-            }
-        }
+		case CHANGE_SETTINGS_COMMAND:
+			runSettingsAction(inputParts);
+			break;
 
-        else */
-        switch (userInput) {
+		default:
+			playRoundAction(inputParts);
+			break;
 
-            case QUIT_COMMAND:
-                return runQuitCommand();
+		}
+		return true;
+	}
 
-            case NEW_GAME_COMMAND:
-                newGameAction();
-                break;
+	private boolean runQuitCommand() {
+		controller.quit();
+		return false; // quit loop in main program
+	}
 
-            case HELP_COMMAND:
-                showHelpAction();
-                break;
+	private void showHelpAction() {
+		controller.setStateAndNotifyObservers(HELP_TEXT);
+	}
 
-            case CHANGE_SETTINGS_COMMAND:
-                runSettingsAction(inputParts);
-                break;
+	private void newGameAction() {
+		controller.startNewGame();
+	}
 
-            default:
-                playRoundAction(inputParts);
-                break;
+	private void playRoundAction(List<String> inputParts) {
 
-        }
-        return true;
-    }
+		controller.setStateAndNotifyObservers(INFO_TEXT);
 
-    private boolean runQuitCommand() {
-        controller.quit();
-        return false; // quit loop in main program
-    }
+		if (inputParts.size() == 2) {
+			revealCell(inputParts);
+		} else if (inputParts.size() == 3) {
+			setFlag(inputParts);
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
 
-    private void showHelpAction() {
-        controller.setStateAndNotifyObservers(HELP_TEXT);
-    }
+	private void setFlag(List<String> answerAsList) {
+		try {
+			int row = Integer.parseInt(answerAsList.get(1));
+			int col = Integer.parseInt(answerAsList.get(2));
+			controller.toggleFlag(row, col);
+		} catch (Exception e) {
+			controller.setStateAndNotifyObservers(ERROR);
+			LOGGER.error(e);
+		}
+	}
 
-    private void newGameAction() {
-        controller.startNewGame();
-    }
+	private void revealCell(List<String> answerAsList) {
 
-    private void playRoundAction(List<String> inputParts) {
+		int row = Integer.parseInt(answerAsList.get(0));
+		int col = Integer.parseInt(answerAsList.get(1));
 
-        controller.setStateAndNotifyObservers(INFO_TEXT);
+		controller.revealCell(row, col);
+	}
 
-        if (inputParts.size() == 2) {
-            revealCell(inputParts);
-        } else if (inputParts.size() == 3) {
-            setFlag(inputParts);
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
+	private void runSettingsAction(List<String> list) {
 
-    private void setFlag(List<String> answerAsList) {
-        try {
-            int row = Integer.parseInt(answerAsList.get(1));
-            int col = Integer.parseInt(answerAsList.get(2));
-            controller.toggleFlag(row, col);
-        } catch (Exception e) {
-            controller.setStateAndNotifyObservers(ERROR);
-            LOGGER.error(e);
-        }
-    }
+		try {
+			int numRowsAndColumns = Integer.parseInt(list.get(1));
+			int numberOfMines = Integer.parseInt(list.get(2));
+			controller.commitNewSettingsAndRestart(numRowsAndColumns, numberOfMines);
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+	}
 
-    private void revealCell(List<String> answerAsList) {
+	@Override
+	public void update(Event e) {
+		printTUI();
+	}
 
-        int row = Integer.parseInt(answerAsList.get(0));
-        int col = Integer.parseInt(answerAsList.get(1));
+	public String getGridAsString() {
+		StringBuilder result = new StringBuilder();
+		final List<Cell> allCells = controller.getGrid().getCells();
+		final int numberOfRows = controller.getGrid().getNumberOfRows();
 
-        controller.revealCell(row, col);
-    }
+		for (int row = 0; row < numberOfRows; row++) {
+			final int currentRow = row; // to use it in Lambda expression
+			allCells.stream().filter(cell -> cell.getPosition().getRow() == currentRow)
+					.forEach(cell -> result.append(cell.toString()).append(" "));
 
+			result.append("\n");
+		}
 
-    private void runSettingsAction(List<String> list) {
+		return result.toString();
+	}
 
-        try {
-            int numRowsAndColumns = Integer.parseInt(list.get(1));
-            int numberOfMines = Integer.parseInt(list.get(2));
-            controller.commitNewSettingsAndRestart(numRowsAndColumns, numberOfMines);
-        } catch (Exception e) {
-            LOGGER.error(e);
-        }
-    }
+	public void printTUI() {
+		final IController.State state = controller.getState();
 
-    @Override
-    public void update(Event e) {
-        printTUI();
-    }
+		if (state.equals(ERROR)) {
+			LOGGER.error("NOT A NUMBER!");
+			return;
+		}
+		// show this in every step? HELP_TEXT..
+		LOGGER.info(getGridAsString());
 
-    public String getGridAsString() {
-        StringBuilder result = new StringBuilder();
-        final List<Cell> allCells = controller.getGrid().getCells();
-        final int numberOfRows = controller.getGrid().getNumberOfRows();
+		if ("".equals(lastUserInput)) {
+			LOGGER.info("You typed: " + lastUserInput + "\n");
+		}
 
-        for (int row = 0; row < numberOfRows; row++) {
-            final int currentRow = row;     // to use it in Lambda expression
-            allCells.stream()
-                    .filter(cell -> cell.getPosition().getRow() == currentRow)
-                    .forEach(cell -> result.append(cell.toString()).append(" "));
+		switch (state) {
 
-            result.append("\n");
-        }
+		case GAME_LOST:
+			LOGGER.info("You Lost!");
+			break;
 
-        return result.toString();
-    }
+		case GAME_WON:
+			LOGGER.info("You Won! " + controller.getElapsedTimeSeconds() + " Points!");
+			break;
 
-    public void printTUI() {
-        final IController.State state = controller.getState();
+		case HELP_TEXT:
+			LOGGER.info(controller.getHelpText());
+			break;
 
-        if (state.equals(ERROR)) {
-            LOGGER.error("NOT A NUMBER!");
-            return;
-        }
-        //show this in every step? HELP_TEXT..
-        LOGGER.info(getGridAsString());
+		case CHANGE_SETTINGS_ACTIVATED:
+			LOGGER.info("Set number of column/row and mines:");
+			break;
 
-        if ("".equals(lastUserInput)) {
-            LOGGER.info("You typed: " + lastUserInput + "\n");
-        }
+		case CHANGE_SETTINGS_SUCCESS:
+			LOGGER.info("You set row/column to: " + controller.getGrid().getNumberOfRows() + " and mines to: "
+					+ controller.getGrid().getNumberOfMines());
+			break;
 
-        switch (state) {
+		case INFO_TEXT: // or status == 0, running? default?
+		default:
+			LOGGER.info("Type:\n\tx,x | x is a number between 0 and 9 (row, column) to reveal field.\n"
+					+ "\tf,x,x | Same as above, but only put / remove a flag at this position.\n" + "\tOr press "
+					+ HELP_COMMAND + " to get more help.");
+		}
 
-            case GAME_LOST:
-                LOGGER.info("You Lost!");
-                break;
+		if (state == GAME_LOST || state == GAME_WON) {
+			LOGGER.info("New Game? Type: n");
+		}
+	}
 
-            case GAME_WON:
-                LOGGER.info("You Won! " + controller.getElapsedTimeSeconds() + " Points!");
-                break;
+	public String printTUIAsString() {
+		final IController.State state = controller.getState();
 
-            case HELP_TEXT:
-                LOGGER.info(controller.getHelpText());
-                break;
+		if (state.equals(ERROR)) {
+			return "NOT A NUMBER!";
+		}
 
-            case CHANGE_SETTINGS_ACTIVATED:
-                LOGGER.info("Set number of column/row and mines:");
-                break;
+		final StringBuilder result = new StringBuilder(getGridAsString());
 
-            case CHANGE_SETTINGS_SUCCESS:
-                LOGGER.info("You set row/column to: " + controller.getGrid().getNumberOfRows() + " and mines to: " + controller.getGrid().getNumberOfMines());
-                break;
+		if ("".equals(lastUserInput)) {
+			result.append("You typed: " + lastUserInput + "\n");
+		}
 
-            case INFO_TEXT: // or status == 0, running? default?
-            default:
-                LOGGER.info("Type:\n\tx,x | x is a number between 0 and 9 (row, column) to reveal field.\n" +
-                        "\tf,x,x | Same as above, but only put / remove a flag at this position.\n" +
-                        "\tOr press " + HELP_COMMAND + " to get more help.");
-        }
+		switch (state) {
 
-        if (state == GAME_LOST || state == GAME_WON) {
-            LOGGER.info("New Game? Type: n");
-        }
-    }
+		case GAME_LOST:
+			result.append("You Lost!");
+			break;
 
-    public String printTUIAsString() {
-        final IController.State state = controller.getState();
+		case GAME_WON:
+			result.append("You Won! " + controller.getElapsedTimeSeconds() + " Points!");
+			break;
 
-        if (state.equals(ERROR)) {
-            return "NOT A NUMBER!";
-        }
+		case HELP_TEXT:
+			result.append(controller.getHelpText());
+			break;
 
-        final StringBuilder result = new StringBuilder(getGridAsString());
+		case CHANGE_SETTINGS_ACTIVATED:
+			result.append("Set number of column/row and mines:");
+			break;
 
-        if ("".equals(lastUserInput)) {
-            result.append("You typed: " + lastUserInput + "\n");
-        }
+		case CHANGE_SETTINGS_SUCCESS:
+			result.append("You set row/column to: " + controller.getGrid().getNumberOfRows() + " and mines to: "
+					+ controller.getGrid().getNumberOfMines());
+			break;
 
-        switch (state) {
+		case INFO_TEXT: // or status == 0, running? default?
+		default:
+			result.append("Type:\n\tx,x | x is a number between 0 and 9 (row, column) to reveal field.\n"
+					+ "\tf,x,x | Same as above, but only put / remove a flag at this position.\n" + "\tOr press "
+					+ HELP_COMMAND + " to get more help.");
+		}
 
-            case GAME_LOST:
-                result.append("You Lost!");
-                break;
+		if (state == GAME_LOST || state == GAME_WON) {
+			result.append("New Game? Type: n");
+		}
 
-            case GAME_WON:
-                result.append("You Won! " + controller.getElapsedTimeSeconds() + " Points!");
-                break;
-
-            case HELP_TEXT:
-                result.append(controller.getHelpText());
-                break;
-
-            case CHANGE_SETTINGS_ACTIVATED:
-                result.append("Set number of column/row and mines:");
-                break;
-
-            case CHANGE_SETTINGS_SUCCESS:
-                result.append("You set row/column to: " + controller.getGrid().getNumberOfRows() + " and mines to: " + controller.getGrid().getNumberOfMines());
-                break;
-
-            case INFO_TEXT: // or status == 0, running? default?
-            default:
-                result.append("Type:\n\tx,x | x is a number between 0 and 9 (row, column) to reveal field.\n" +
-                        "\tf,x,x | Same as above, but only put / remove a flag at this position.\n" +
-                        "\tOr press " + HELP_COMMAND + " to get more help.");
-        }
-
-        if (state == GAME_LOST || state == GAME_WON) {
-            result.append("New Game? Type: n");
-        }
-
-        return result.toString();
-    }
-
+		return result.toString();
+	}
 
 }

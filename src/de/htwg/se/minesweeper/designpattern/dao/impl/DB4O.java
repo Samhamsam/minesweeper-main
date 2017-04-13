@@ -2,9 +2,9 @@ package de.htwg.se.minesweeper.designpattern.dao.impl;
 
 import com.db4o.Db4oEmbedded;
 import com.db4o.ObjectContainer;
- import de.htwg.se.minesweeper.designpattern.dao.IDao;
+import de.htwg.se.minesweeper.designpattern.dao.IDao;
 import de.htwg.se.minesweeper.model.Grid;
-  
+
 public class DB4O implements IDao {
 
 	ObjectContainer db;
