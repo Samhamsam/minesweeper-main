@@ -1,23 +1,20 @@
 package de.htwg.se.minesweeper.designpattern.daoFactory.DAO;
 
-//import com.db4o.Db4oEmbedded;
-//import com.db4o.ObjectContainer;
+import java.util.List;
+
+ 
+import com.db4o.query.Predicate;
+
+import de.htwg.se.minesweeper.designpattern.daoFactory.Factory.DB4ODAOFactory;
 
 import de.htwg.se.minesweeper.model.Grid;
+ 
 
 public class DB4OGridDAO implements IGridDao {
 
-	// ObjectContainer db;
-	// private String DB4OFILENAME =
-	// "src/de/htwg/se/minesweeper/designpattern/dao/impl/Database/test";
-	//
-	// public DB4O() {
-	// this.db = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(),
-	// DB4OFILENAME);
-	// }
-
 	@Override
 	public Grid createGrid(int row, int col) {
+
 		return new Grid(row, col);
 	}
 
@@ -57,5 +54,34 @@ public class DB4OGridDAO implements IGridDao {
 
 	}
 
+	@Override
+	public void saveGrid(Grid grid) {
+
+		DB4ODAOFactory.connection().store(grid);
+	}
+
+	@Override
+	public  boolean containGrid(final Grid grid) {
+		//final String gridString = grid.toString();
+		
+		List<Grid> grids = DB4ODAOFactory.connection().query(new Predicate<Grid>() {
+			
+ 
+ 
+			private static final long serialVersionUID = 1L;
+
+			public boolean match(Grid grid) {
+				return grid.getNumberOfColumns() == 10 ;
+			}
+		});
+
+		if (grids.size() > 0) {
+			 
+			return true;
+		}
+		return false;
+
+	}
+	 
 
 }

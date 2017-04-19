@@ -17,7 +17,7 @@ public class Grid {
 	private int numberOfRows;
 	private int numberOfColumns;
 	private int numberOfMines;
-
+	public Grid(){}
 	// default constructor for empty grid
 	public Grid(int numberOfRows, int numberOfColums) {
 

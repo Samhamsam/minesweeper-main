@@ -1,5 +1,6 @@
 package de.htwg.se.minesweeper.designpattern.daoFactory.Factory;
 
+import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.DB4OGridDAO;
 import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.IGridDao;
 
 public abstract class DAOFactory {
@@ -10,7 +11,7 @@ public abstract class DAOFactory {
 	
 	
 	//hier kommt IUserDao noch hin
-	public abstract IGridDao getGridDao();
+	public abstract DB4OGridDAO getGridDao();
 	
 	public static DAOFactory getDAOFactory(int whichFactory){
 		switch(whichFactory){

@@ -13,8 +13,12 @@ public class TestClass {
 		IGridDao custDAO = DB4ODBFactory.getGridDao();
 		
 		Grid testGrid = custDAO.createGrid(10,10);
+		custDAO.saveGrid(testGrid);
 		
-		System.out.println(testGrid.getNumberOfRows());
+		System.out.println( custDAO.containGrid(testGrid));
+		
+		
+	 
 	}
 
 }
