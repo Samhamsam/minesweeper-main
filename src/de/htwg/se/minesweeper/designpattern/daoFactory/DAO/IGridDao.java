@@ -4,22 +4,16 @@ import de.htwg.se.minesweeper.model.Grid;
 
 public interface IGridDao {
 
-	public Grid createGrid(int row, int col);
+	Grid createGrid(int row, int col);
 
-	public void saveGrid(final Grid grid);
+	Grid createGrid(int row, int col, int mines);
 
-	public void getNumberOfRows();
+	void saveAndUpdateGrid(final Grid grid);
 
-	public void getNumberOfColumns();
+	boolean containGrid(final Grid grid);
 
-	public void getNumberOfMines();
+	void deleteGrid(final Grid grid);
 
-	public void getAllNeighbors();
-
-	public void getNumberOfRevealedCells();
-
-	public void getTotalNumberOfCells();
-	
-	public boolean containGrid(final Grid grid);
+	Grid readGrid();
 
 }

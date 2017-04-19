@@ -5,6 +5,7 @@ import de.htwg.se.minesweeper.aview.tui.TUI;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.impl.Controller;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public final class Minesweeper {
@@ -15,7 +16,7 @@ public final class Minesweeper {
 	protected IController controller;
 	private static Minesweeper instance = null;
 
-	private Minesweeper() {
+	private Minesweeper() throws IOException {
 		// Injector inject = Guice.createInjector();
 		// controller = inject.getInstance(IController.class);
 		// TODO Mark: juice
@@ -26,7 +27,7 @@ public final class Minesweeper {
 		tui.printTUI();
 	}
 
-	public static Minesweeper getInstance() {
+	public static Minesweeper getInstance() throws IOException {
 		if (instance == null) {
 			instance = new Minesweeper();
 		}
@@ -41,7 +42,7 @@ public final class Minesweeper {
 		return controller;
 	}
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws IOException {
 
 		Minesweeper game = Minesweeper.getInstance();
 

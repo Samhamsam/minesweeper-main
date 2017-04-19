@@ -1,10 +1,14 @@
 package de.htwg.se.minesweeper.controller.impl;
 
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.DB4OGridDAO;
+import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.IGridDao;
+import de.htwg.se.minesweeper.designpattern.daoFactory.Factory.DAOFactory;
 import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -24,9 +28,20 @@ public class Controller extends Observable implements IController {
 	// for time measuring
 	private long timeOfGameStartMills;
 	private long elapsedTimeSeconds;
+	private DAOFactory DB4ODBFactory;
+	private IGridDao dao;
 
-	public Controller() {
+	private void db4o() throws IOException {
+		DB4ODBFactory = DAOFactory.getDAOFactory(DAOFactory.DB4O);
+		dao = DB4ODBFactory.getGridDao();
+
+	}
+
+	public Controller() throws IOException {
+		db4o();
 		startNewGame();
+		
+	
 	}
 
 	@Override
@@ -74,7 +89,8 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
-			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+			this.grid = dao.createGrid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+			System.out.println(getGrid());
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
@@ -105,6 +121,7 @@ public class Controller extends Observable implements IController {
 
 		// potentially recursive revealing, or winning / losing
 		recursiveRevealCell(cell);
+		dao.saveAndUpdateGrid(grid);
 
 		// notify observers only once
 		notifyObservers();
