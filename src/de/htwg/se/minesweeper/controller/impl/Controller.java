@@ -1,6 +1,7 @@
 package de.htwg.se.minesweeper.controller.impl;
 
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.CouchDBGridDAO;
 import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.DB4OGridDAO;
 import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.IGridDao;
 import de.htwg.se.minesweeper.designpattern.daoFactory.Factory.DAOFactory;
@@ -9,8 +10,7 @@ import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,23 +22,31 @@ public class Controller extends Observable implements IController {
 
 	private static final String DEFAULT_DIFFICULTY = "intermediate";
 	private static final String DEFAULT_SIZE = "small";
- 	private Grid grid;
+	private Grid grid;
 	private State state;
 
 	// for time measuring
 	private long timeOfGameStartMills;
 	private long elapsedTimeSeconds;
-	private DAOFactory DB4ODBFactory;
+	// private DAOFactory FACTORY;
+
 	private IGridDao dao;
 
 	private void db4o() throws IOException {
-		DB4ODBFactory = DAOFactory.getDAOFactory(DAOFactory.DB4O);
-		dao = DB4ODBFactory.getGridDao();
+		DAOFactory.getDAOFactory(DAOFactory.DB4O);
+		dao = new DB4OGridDAO();
+
+	}
+
+	private void couchDB() throws IOException {
+		DAOFactory.getDAOFactory(DAOFactory.CouchDB);
+		dao = new CouchDBGridDAO();
 
 	}
 
 	public Controller() throws IOException {
-		db4o();
+		// db4o();
+		couchDB();
 		startNewGame();
 
 	}
@@ -90,11 +98,9 @@ public class Controller extends Observable implements IController {
 		try {
 			if (dao.readGrid() == null) {
 				this.grid = dao.createGrid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-				System.out.println("if");
 
 			} else {
 				this.grid = dao.readGrid();
-				System.out.println("else");
 			}
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
@@ -113,10 +119,10 @@ public class Controller extends Observable implements IController {
 
 	@Override
 	public void revealCell(int row, int col) {
- 		revealCell(this.grid.getCellAt(row, col));
- 
-	 dao.saveAndUpdateGrid(this.grid);
-		
+		revealCell(this.grid.getCellAt(row, col));
+
+		dao.saveAndUpdateGrid(this.grid);
+
 	}
 
 	@Override

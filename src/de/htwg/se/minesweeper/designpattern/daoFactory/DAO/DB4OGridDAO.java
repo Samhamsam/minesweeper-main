@@ -28,30 +28,29 @@ public class DB4OGridDAO implements IGridDao {
 	@Override
 	public void saveAndUpdateGrid(Grid grid) {
 		db.store(grid);
-		
 		db.commit();
 
 	}
-	
-	@Override
-	public boolean containGrid(final Grid grid) {
-		final String gridString = grid.toString();
-		List<Grid> grids = db.query(new Predicate<Grid>() {
-
-			private static final long serialVersionUID = 1L;
-
-			public boolean match(Grid grid) {
-				return (grid.toString().equals(gridString));
-			}
-		});
-
-		if (grids.size() > 0) {
-			return true;
-		}
-		return false;
-
-	}
-	
+//	
+//	@Override
+//	public boolean containGrid(final Grid grid) {
+//		final String gridString = grid.toString();
+//		List<Grid> grids = db.query(new Predicate<Grid>() {
+//
+//			private static final long serialVersionUID = 1L;
+//
+//			public boolean match(Grid grid) {
+//				return (grid.toString().equals(gridString));
+//			}
+//		});
+//
+//		if (grids.size() > 0) {
+//			return true;
+//		}
+//		return false;
+//
+//	}
+//	
 	@Override
 	public Grid readGrid() {
  		List<Grid> grids = db.query(new Predicate<Grid>() {

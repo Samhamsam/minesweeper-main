@@ -1,10 +1,5 @@
 package de.htwg.se.minesweeper.designpattern.daoFactory.Factory;
 
-import java.io.IOException;
-
-import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.DB4OGridDAO;
-import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.IGridDao;
-
 public abstract class DAOFactory {
 
 	public static final int DB4O = 1;
@@ -12,8 +7,6 @@ public abstract class DAOFactory {
 	public static final int CouchDB = 3;
 	
 	
-	//hier kommt IUserDao noch hin
-	public abstract DB4OGridDAO getGridDao() throws IOException;
 	
 	public static DAOFactory getDAOFactory(int whichFactory){
 		switch(whichFactory){
@@ -27,6 +20,8 @@ public abstract class DAOFactory {
 		}
 		
 	}
+
+ 
 
 	
 }
