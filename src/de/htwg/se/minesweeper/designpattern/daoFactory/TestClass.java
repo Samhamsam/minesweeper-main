@@ -14,7 +14,7 @@ public class TestClass {
 		
 		IGridDao custDAO = DB4ODBFactory.getGridDao();
 		
-		Grid testGrid = custDAO.createGrid(10,10);
+		Grid testGrid = custDAO.createGrid(7,7);
 		custDAO.saveAndUpdateGrid(testGrid);
  		System.out.println( custDAO.containGrid(testGrid));
 		

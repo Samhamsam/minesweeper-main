@@ -8,7 +8,7 @@ public interface IGridDao {
 
 	Grid createGrid(int row, int col, int mines);
 
-	void saveAndUpdateGrid(final Grid grid);
+	void saveAndUpdateGrid(  Grid grid);
 
 	boolean containGrid(final Grid grid);
 
@@ -16,4 +16,5 @@ public interface IGridDao {
 
 	Grid readGrid();
 
+ 
 }

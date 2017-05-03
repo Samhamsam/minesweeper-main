@@ -9,6 +9,7 @@ import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -21,8 +22,7 @@ public class Controller extends Observable implements IController {
 
 	private static final String DEFAULT_DIFFICULTY = "intermediate";
 	private static final String DEFAULT_SIZE = "small";
-
-	private Grid grid;
+ 	private Grid grid;
 	private State state;
 
 	// for time measuring
@@ -40,8 +40,7 @@ public class Controller extends Observable implements IController {
 	public Controller() throws IOException {
 		db4o();
 		startNewGame();
-		
-	
+
 	}
 
 	@Override
@@ -89,8 +88,14 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
-			this.grid = dao.createGrid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-			System.out.println(getGrid());
+			if (dao.readGrid() == null) {
+				this.grid = dao.createGrid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+				System.out.println("if");
+
+			} else {
+				this.grid = dao.readGrid();
+				System.out.println("else");
+			}
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
@@ -108,7 +113,10 @@ public class Controller extends Observable implements IController {
 
 	@Override
 	public void revealCell(int row, int col) {
-		revealCell(this.grid.getCellAt(row, col));
+ 		revealCell(this.grid.getCellAt(row, col));
+ 
+	 dao.saveAndUpdateGrid(this.grid);
+		
 	}
 
 	@Override
@@ -121,10 +129,10 @@ public class Controller extends Observable implements IController {
 
 		// potentially recursive revealing, or winning / losing
 		recursiveRevealCell(cell);
-		dao.saveAndUpdateGrid(grid);
 
 		// notify observers only once
 		notifyObservers();
+
 	}
 
 	/**

@@ -28,9 +28,11 @@ public class DB4OGridDAO implements IGridDao {
 	@Override
 	public void saveAndUpdateGrid(Grid grid) {
 		db.store(grid);
+		
+		db.commit();
 
 	}
-
+	
 	@Override
 	public boolean containGrid(final Grid grid) {
 		final String gridString = grid.toString();
@@ -62,7 +64,7 @@ public class DB4OGridDAO implements IGridDao {
 		});
 
 		if (grids.size() > 0) {
-			System.out.println(grids.get(0).getNumberOfColumns());
+		 
 			return grids.get(0);
 		}
 		return null;

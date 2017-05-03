@@ -3,7 +3,10 @@ package de.htwg.se.minesweeper.designpattern.daoFactory.Factory;
 import java.io.IOException;
 import com.db4o.Db4oEmbedded;
 import com.db4o.ObjectContainer;
+import com.db4o.config.EmbeddedConfiguration;
+
 import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.DB4OGridDAO;
+import de.htwg.se.minesweeper.model.Grid;
 
 public class DB4ODAOFactory extends DAOFactory {
 
@@ -16,7 +19,9 @@ public class DB4ODAOFactory extends DAOFactory {
 	}
 
 	public ObjectContainer connection() throws IOException {
-		db = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), DB4ODATABASE);
+		EmbeddedConfiguration config = Db4oEmbedded.newConfiguration(); 
+		config.common().objectClass(Grid.class).cascadeOnUpdate(true);
+		db = Db4oEmbedded.openFile(config, DB4ODATABASE);
 		return db;
 	}
 }
