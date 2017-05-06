@@ -29,7 +29,7 @@ dependencies {
     compile 'org.hibernate:hibernate-core:5.2.10.Final'
     compile group: 'org.ektorp', name: 'org.ektorp', version: '1.4.4'
  	compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
-    
+  
 }
 
 sourceSets {

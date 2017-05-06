@@ -27,6 +27,10 @@ public class Cell {
 		this.surroundingMines = 0;
 	}
 
+	public Cell() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public boolean hasMine() {
 		return hasMine;
 	}

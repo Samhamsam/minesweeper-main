@@ -1,4 +1,4 @@
-package de.htwg.se.minesweeper.designpattern.daoFactory.Factory;
+package de.htwg.se.minesweeper.persistence.couchdb;
 
 import java.net.MalformedURLException;
 
@@ -9,6 +9,8 @@ import org.ektorp.CouchDbInstance;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
+
+import de.htwg.se.minesweeper.persistence.DAOFactory;
 
  
 public class CouchDBFactory extends DAOFactory {
@@ -25,7 +27,7 @@ public class CouchDBFactory extends DAOFactory {
 	 		LOGGER.error("Malformed URL", e);
  		}
 		CouchDbInstance dbInstance = new StdCouchDbInstance(client);
-		db = dbInstance.createConnector("minesweeper_ma", true);
+		db = dbInstance.createConnector("minesweeper_ma2017", true);
 		db.createDatabaseIfNotExists();
 		return db;
 	}

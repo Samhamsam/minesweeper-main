@@ -1,13 +1,13 @@
 package de.htwg.se.minesweeper.controller.impl;
 
 import de.htwg.se.minesweeper.controller.IController;
-import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.CouchDBGridDAO;
-import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.DB4OGridDAO;
-import de.htwg.se.minesweeper.designpattern.daoFactory.DAO.IGridDao;
-import de.htwg.se.minesweeper.designpattern.daoFactory.Factory.DAOFactory;
 import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
+import de.htwg.se.minesweeper.persistence.DAOFactory;
+import de.htwg.se.minesweeper.persistence.IGridDao;
+import de.htwg.se.minesweeper.persistence.couchdb.GridCouchdbDAO;
+import de.htwg.se.minesweeper.persistence.db4o.DB4OGridDAO;
 
 import java.io.IOException;
  import java.util.List;
@@ -40,7 +40,7 @@ public class Controller extends Observable implements IController {
 
 	private void couchDB() throws IOException {
 		DAOFactory.getDAOFactory(DAOFactory.CouchDB);
-		dao = new CouchDBGridDAO();
+		dao = new GridCouchdbDAO();
 
 	}
 
@@ -96,12 +96,14 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
-			if (dao.readGrid() == null) {
+			
+			 
+		//	if (this.grid.getId() == null) {
 				this.grid = dao.createGrid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
 
-			} else {
-				this.grid = dao.readGrid();
-			}
+			//} else {
+			//	this.grid = dao.readGrid(grid);
+		//	}
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
@@ -122,7 +124,7 @@ public class Controller extends Observable implements IController {
 		revealCell(this.grid.getCellAt(row, col));
 
 		dao.saveAndUpdateGrid(this.grid);
-
+		
 	}
 
 	@Override

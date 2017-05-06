@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -18,13 +19,15 @@ public class Grid {
 	private int numberOfColumns;
 	private int numberOfMines;
 	public Grid(){}
+	String id;
 	// default constructor for empty grid
 	public Grid(int numberOfRows, int numberOfColums) {
 
 		cells = new ArrayList<>(numberOfColums * numberOfRows);
 		this.numberOfRows = numberOfRows;
 		this.numberOfColumns = numberOfColums;
-
+		this.id = UUID.randomUUID().toString();
+ 
 		for (int row = 0; row < numberOfRows; row++) {
 			for (int col = 0; col < numberOfColums; col++) {
 				final Cell cell = new Cell(new Cell.Position(row, col));
@@ -37,6 +40,7 @@ public class Grid {
 	public Grid(int numberOfRows, int numberOfColums, int numberOfMines) {
 		this(numberOfRows, numberOfColums);
 		this.numberOfMines = numberOfMines;
+		this.id = UUID.randomUUID().toString();
 
 		// place mines on grid
 		final Random random = new Random();
@@ -133,4 +137,16 @@ public class Grid {
 	public int getNumberOfColumns() {
 		return numberOfColumns;
 	}
+	
+	public String getId(){
+		System.out.println("this is my ID " +  id);
+		return id;
+		
+	}
+
+	public void setId(String string) {
+		UUID.randomUUID().toString();
+	}
+
+	 
 }

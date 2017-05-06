@@ -1,4 +1,6 @@
-package de.htwg.se.minesweeper.designpattern.daoFactory.Factory;
+package de.htwg.se.minesweeper.persistence;
+
+import de.htwg.se.minesweeper.persistence.db4o.DB4ODAOFactory;
 
 public abstract class DAOFactory {
 

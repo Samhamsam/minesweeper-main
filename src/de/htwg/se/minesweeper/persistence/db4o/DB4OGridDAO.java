@@ -1,11 +1,12 @@
-package de.htwg.se.minesweeper.designpattern.daoFactory.DAO;
+package de.htwg.se.minesweeper.persistence.db4o;
 
 import java.io.IOException;
 import java.util.List;
 import com.db4o.ObjectContainer;
 import com.db4o.query.Predicate;
-import de.htwg.se.minesweeper.designpattern.daoFactory.Factory.DB4ODAOFactory;
+
 import de.htwg.se.minesweeper.model.Grid;
+import de.htwg.se.minesweeper.persistence.IGridDao;
 
 public class DB4OGridDAO implements IGridDao {
 
@@ -74,6 +75,30 @@ public class DB4OGridDAO implements IGridDao {
 	@Override
 	public void deleteGrid(Grid grid) {
 		db.delete(grid);
+	}
+
+	@Override
+	public Grid readGrid(Grid grid) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteGrid(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Grid getGridById(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean containsGridById(String id) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
