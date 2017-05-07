@@ -9,6 +9,7 @@ import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Cell.Position;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
+import junit.framework.Test;
 
 public class GridCouchdbDAO implements IGridDao {
 
@@ -18,86 +19,78 @@ public class GridCouchdbDAO implements IGridDao {
 		db = new CouchDBFactory().connection();
 	}
 
-	private Grid copy(PersiGrid gridDao) {
+	private Grid updateGridInDB(PersiGrid persiGrid) { // copy Grid ***From***
+														// DB
 
-		Grid grid = new Grid(gridDao.getRows(), gridDao.getCol(), gridDao.getMines());
-		grid.setId(gridDao.getId());
+		Grid grid = new Grid(persiGrid.getRows(), persiGrid.getCol(), persiGrid.getMines());
+		grid.setId(persiGrid.getId());
+		
+		for (PersiCell cellCouch : persiGrid.getCells()) {
+			Cell updateCells = this.updateCellInDB(cellCouch);
 
-		for (PersiCell cellCouch : gridDao.getCells()) {
-			Cell newCell = this.cells(cellCouch);
-			Cell oldCell = grid.getCellAt(cellCouch.getRow(), cellCouch.getCol());
-			oldCell.setFlagged(newCell.isFlagged());
-			oldCell.setHasMine(newCell.hasMine());
-			oldCell.setPosition(newCell.getPosition());
-			oldCell.setRevealed(newCell.isRevealed());
-			oldCell.setSurroundingMines(newCell.getSurroundingMines());
+			Cell cell = grid.getCellAt(cellCouch.getRow(), cellCouch.getCol());
+			cell.setFlagged(updateCells.isFlagged());
+			cell.setHasMine(updateCells.hasMine());
+			cell.setPosition(updateCells.getPosition());
+			cell.setRevealed(updateCells.isRevealed());
+			cell.setSurroundingMines(updateCells.getSurroundingMines());
 		}
 
 		return grid;
 	}
 
-	private PersiGrid copy(Grid grid) {
-		PersiGrid gridCouch = new PersiGrid();
+	private Cell updateCellInDB(PersiCell cellCouch) {
+		return new Cell(cellCouch.isHasMine(), cellCouch.isFlagged(), cellCouch.isRevealed(),
+				cellCouch.getSurroundingMines());
 
+		 
+	}
+
+	private PersiGrid copyGridToDB(Grid grid) { // copy Grid ***To*** DB
+		if (grid == null) {
+			return null;
+		}
+		PersiGrid persiGrid = new PersiGrid();
+		String id = grid.getId();
+ 
 		List<PersiCell> cells = new LinkedList<PersiCell>();
 		for (Cell cell : grid.getCells()) {
-			cells.add(this.cells(cell));
+			cells.add(this.cellsToDB(cell));
 		}
 
-		gridCouch.setId(grid.getId());
-		gridCouch.setCells(cells);
-		gridCouch.setCol(grid.getNumberOfColumns());
-		gridCouch.setRows(grid.getNumberOfRows());
-		gridCouch.setMines(grid.getNumberOfMines());
-
-		return gridCouch;
+		persiGrid.setId(id);
+		persiGrid.setCells(cells);
+		persiGrid.setCol(grid.getNumberOfColumns());
+		persiGrid.setRows(grid.getNumberOfRows());
+		persiGrid.setMines(grid.getNumberOfMines());
+ 
+		return persiGrid;
 
 	}
 
-	private Cell cells(PersiCell cellCouch) {
-		Cell cell = new Cell();
-		Position position = cell.getPosition();
-		return new Cell(position);
-	}
+	private PersiCell cellsToDB(Cell cell) {
+		return new PersiCell(cell.hasMine(), cell.isFlagged(), cell.isRevealed(),
+				cell.getSurroundingMines(), cell.getPosition().getRow(), cell.getPosition().getCol());
+ 	}
 
-	private PersiCell cells(Cell cell) {
-		PersiCell cellCouch = new PersiCell();
-		cellCouch.setCol(cell.getPosition().getCol());
-		cellCouch.setRow(cell.getPosition().getRow());
-		cellCouch.setFlagged(cell.isFlagged());
-		cellCouch.setHasMine(cell.hasMine());
-		cellCouch.setRevealed(cell.isRevealed());
-		cellCouch.setSurroundingMines(cell.getSurroundingMines());
-		return cellCouch;
-	}
 
 	@Override
-	public Grid createGrid(int row, int col) {
-		return new Grid(row, col);
-	}
-
-	@Override
-	public Grid createGrid(int row, int col, int mines) {
-		return new Grid(row, col, mines);
-	}
-
-	@Override
-	public void saveAndUpdateGrid(Grid grid) {
+	public void saveOrUpdateGrid(Grid grid) {
 		if (containsGridById(grid.getId())) {
-			db.update(copy(grid));
+			db.update(copyGridToDB(grid));
 		} else {
-			db.create(grid.getId(), copy(grid));
+			db.create(grid.getId(), copyGridToDB(grid));
 		}
 
 	}
 
 	@Override
 	public Grid getGridById(String id) {
-		PersiGrid grid = db.find(PersiGrid.class, id);
-		if (grid == null) {
+		PersiGrid persiGrid = db.find(PersiGrid.class, id);
+		if (persiGrid == null) {
 			return null;
 		}
-		return copy(grid);
+		return updateGridInDB(persiGrid);
 	}
 
 	@Override
@@ -109,26 +102,17 @@ public class GridCouchdbDAO implements IGridDao {
 	}
 
 	@Override
-	public void deleteGrid(String id) {
-		db.delete(id);
+	public void deleteGridById(String id) {
+		db.delete(copyGridToDB(getGridById(id)));
 	}
 
 	@Override
-	public Grid readGrid(Grid grid) {
-
-		return db.get(Grid.class, grid.getId());
-
-	}
-
-	@Override
-	public void deleteGrid(Grid grid) {
+	public List<Grid> getAllGrids() {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Grid readGrid() {
 		return null;
 	}
+
+	 
+ 
 
 }

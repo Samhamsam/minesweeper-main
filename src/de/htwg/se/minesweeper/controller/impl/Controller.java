@@ -10,7 +10,7 @@ import de.htwg.se.minesweeper.persistence.couchdb.GridCouchdbDAO;
 import de.htwg.se.minesweeper.persistence.db4o.DB4OGridDAO;
 
 import java.io.IOException;
- import java.util.List;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,8 +45,8 @@ public class Controller extends Observable implements IController {
 	}
 
 	public Controller() throws IOException {
-		// db4o();
-		couchDB();
+		db4o();
+		// couchDB();
 		startNewGame();
 
 	}
@@ -96,20 +96,27 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
-			
-			 
-		//	if (this.grid.getId() == null) {
-				this.grid = dao.createGrid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-
-			//} else {
-			//	this.grid = dao.readGrid(grid);
-		//	}
+			// TODO this tow lines can be called from GUI (either new Grid or
+			// load from DB)
+			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+			// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
 		} catch (Exception e) {
 			state = State.ERROR;
 		}
+	}
+
+	private Grid loadDB() {
+
+		List<Grid> allGrids = dao.getAllGrids();
+		for (Grid grid : allGrids) {
+			return dao.getGridById(grid.getId());
+
+		}
+		return null;
+
 	}
 
 	@Override
@@ -123,8 +130,8 @@ public class Controller extends Observable implements IController {
 	public void revealCell(int row, int col) {
 		revealCell(this.grid.getCellAt(row, col));
 
-		dao.saveAndUpdateGrid(this.grid);
-		
+		dao.saveOrUpdateGrid(this.grid);
+
 	}
 
 	@Override

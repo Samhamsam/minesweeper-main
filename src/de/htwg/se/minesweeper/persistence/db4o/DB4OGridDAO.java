@@ -17,88 +17,56 @@ public class DB4OGridDAO implements IGridDao {
 	}
 
 	@Override
-	public Grid createGrid(int row, int col) {
-		return new Grid(row, col);
-	}
-
-	@Override
-	public Grid createGrid(int row, int col, int mines) {
-		return new Grid(row, col, mines);
-	}
-
-	@Override
-	public void saveAndUpdateGrid(Grid grid) {
+	public void saveOrUpdateGrid(Grid grid) {
 		db.store(grid);
 		db.commit();
 
 	}
-//	
-//	@Override
-//	public boolean containGrid(final Grid grid) {
-//		final String gridString = grid.toString();
-//		List<Grid> grids = db.query(new Predicate<Grid>() {
-//
-//			private static final long serialVersionUID = 1L;
-//
-//			public boolean match(Grid grid) {
-//				return (grid.toString().equals(gridString));
-//			}
-//		});
-//
-//		if (grids.size() > 0) {
-//			return true;
-//		}
-//		return false;
-//
-//	}
-//	
-	@Override
-	public Grid readGrid() {
- 		List<Grid> grids = db.query(new Predicate<Grid>() {
 
+	@Override
+	public void deleteGridById(String id) {
+		db.delete(getGridById(id));
+
+	}
+
+	@Override
+	public Grid getGridById(String id) {
+		List<Grid> grids = db.query(new Predicate<Grid>() {
 			private static final long serialVersionUID = 1L;
 
 			public boolean match(Grid grid) {
-				return true;
+				return (id.equals(grid.getId()));
 			}
 		});
 
 		if (grids.size() > 0) {
-		 
 			return grids.get(0);
 		}
 		return null;
 
 	}
 
-
-	@Override
-	public void deleteGrid(Grid grid) {
-		db.delete(grid);
-	}
-
-	@Override
-	public Grid readGrid(Grid grid) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void deleteGrid(String id) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Grid getGridById(String id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override
 	public boolean containsGridById(String id) {
-		// TODO Auto-generated method stub
+		List<Grid> grids = db.query(new Predicate<Grid>() {
+
+			private static final long serialVersionUID = 1L;
+
+			public boolean match(Grid grid) {
+				return (grid.getId().equals(id));
+			}
+		});
+
+		if (grids.size() > 0) {
+			return true;
+		}
 		return false;
+	}
+
+	@Override
+	public List<Grid> getAllGrids() {
+		return db.query(Grid.class);
+
 	}
 
 }

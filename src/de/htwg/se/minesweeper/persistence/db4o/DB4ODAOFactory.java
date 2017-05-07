@@ -10,7 +10,7 @@ import de.htwg.se.minesweeper.persistence.DAOFactory;
 
 public class DB4ODAOFactory extends DAOFactory {
 
-	private static final String DB4ODATABASE = "db4oDatabase.yap";
+	private static final String DB4ODATABASE = "db4oDatabase.data";
 	private ObjectContainer db;
 
  

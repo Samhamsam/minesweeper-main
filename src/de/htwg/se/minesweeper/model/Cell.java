@@ -31,6 +31,14 @@ public class Cell {
 		// TODO Auto-generated constructor stub
 	}
 
+	public Cell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines) {
+		super();
+		this.hasMine = hasMine;
+		this.isFlagged = isFlagged;
+		this.isRevealed = isRevealed;
+		this.surroundingMines = surroundingMines;
+	}
+
 	public boolean hasMine() {
 		return hasMine;
 	}

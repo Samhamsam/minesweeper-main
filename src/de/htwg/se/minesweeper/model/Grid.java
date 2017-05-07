@@ -139,13 +139,12 @@ public class Grid {
 	}
 	
 	public String getId(){
-		System.out.println("this is my ID " +  id);
-		return id;
+ 		return id;
 		
 	}
 
-	public void setId(String string) {
-		UUID.randomUUID().toString();
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	 
