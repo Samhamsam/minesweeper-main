@@ -31,12 +31,13 @@ public class Cell {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Cell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines) {
+	public Cell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines,int row, int col) {
 		super();
 		this.hasMine = hasMine;
 		this.isFlagged = isFlagged;
 		this.isRevealed = isRevealed;
 		this.surroundingMines = surroundingMines;
+		this.position = new Position(row, col);
 	}
 
 	public boolean hasMine() {

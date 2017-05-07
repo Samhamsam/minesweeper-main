@@ -45,8 +45,8 @@ public class Controller extends Observable implements IController {
 	}
 
 	public Controller() throws IOException {
-		db4o();
-		// couchDB();
+		 db4o();
+		 //couchDB();
 		startNewGame();
 
 	}
@@ -98,8 +98,8 @@ public class Controller extends Observable implements IController {
 		try {
 			// TODO this tow lines can be called from GUI (either new Grid or
 			// load from DB)
-			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-			// this.grid = loadDB();
+			// this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+			 this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
@@ -111,11 +111,13 @@ public class Controller extends Observable implements IController {
 	private Grid loadDB() {
 
 		List<Grid> allGrids = dao.getAllGrids();
-		for (Grid grid : allGrids) {
-			return dao.getGridById(grid.getId());
+//		for (Grid grid : allGrids) {
+			Grid g = allGrids.get(0);
+		
+			return dao.getGridById(g.getId());
 
-		}
-		return null;
+	//	}
+	//	return null;
 
 	}
 

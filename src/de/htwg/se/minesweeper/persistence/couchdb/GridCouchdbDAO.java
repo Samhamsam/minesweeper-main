@@ -1,15 +1,16 @@
 package de.htwg.se.minesweeper.persistence.couchdb;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.ektorp.CouchDbConnector;
+import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
+import org.ektorp.ViewResult.Row;
 
 import de.htwg.se.minesweeper.model.Cell;
-import de.htwg.se.minesweeper.model.Cell.Position;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
-import junit.framework.Test;
 
 public class GridCouchdbDAO implements IGridDao {
 
@@ -19,12 +20,11 @@ public class GridCouchdbDAO implements IGridDao {
 		db = new CouchDBFactory().connection();
 	}
 
-	private Grid updateGridInDB(PersiGrid persiGrid) { // copy Grid ***From***
-														// DB
+	private Grid gridFromDB(PersiGrid persiGrid) { 
 
 		Grid grid = new Grid(persiGrid.getRows(), persiGrid.getCol(), persiGrid.getMines());
 		grid.setId(persiGrid.getId());
-		
+
 		for (PersiCell cellCouch : persiGrid.getCells()) {
 			Cell updateCells = this.updateCellInDB(cellCouch);
 
@@ -35,24 +35,32 @@ public class GridCouchdbDAO implements IGridDao {
 			cell.setRevealed(updateCells.isRevealed());
 			cell.setSurroundingMines(updateCells.getSurroundingMines());
 		}
-
 		return grid;
 	}
 
 	private Cell updateCellInDB(PersiCell cellCouch) {
 		return new Cell(cellCouch.isHasMine(), cellCouch.isFlagged(), cellCouch.isRevealed(),
-				cellCouch.getSurroundingMines());
+				   cellCouch.getSurroundingMines(), cellCouch.getRow(), cellCouch.getCol());
 
-		 
 	}
 
-	private PersiGrid copyGridToDB(Grid grid) { // copy Grid ***To*** DB
+	private PersiGrid copyGridToDB(Grid grid) { 
 		if (grid == null) {
 			return null;
 		}
-		PersiGrid persiGrid = new PersiGrid();
+		PersiGrid persiGrid ;
 		String id = grid.getId();
- 
+	//	String id = UUID.randomUUID().toString();
+		
+		if (containsGridById(id)) {
+			persiGrid = db.find(PersiGrid.class, id);
+			
+		}
+		else{
+			 persiGrid = new PersiGrid();
+
+		}
+		
 		List<PersiCell> cells = new LinkedList<PersiCell>();
 		for (Cell cell : grid.getCells()) {
 			cells.add(this.cellsToDB(cell));
@@ -63,16 +71,15 @@ public class GridCouchdbDAO implements IGridDao {
 		persiGrid.setCol(grid.getNumberOfColumns());
 		persiGrid.setRows(grid.getNumberOfRows());
 		persiGrid.setMines(grid.getNumberOfMines());
- 
+
 		return persiGrid;
 
 	}
 
 	private PersiCell cellsToDB(Cell cell) {
-		return new PersiCell(cell.hasMine(), cell.isFlagged(), cell.isRevealed(),
-				cell.getSurroundingMines(), cell.getPosition().getRow(), cell.getPosition().getCol());
- 	}
-
+		return new PersiCell(cell.hasMine(), cell.isFlagged(), cell.isRevealed(), cell.getSurroundingMines(),
+				cell.getPosition().getRow(), cell.getPosition().getCol());
+	}
 
 	@Override
 	public void saveOrUpdateGrid(Grid grid) {
@@ -90,7 +97,7 @@ public class GridCouchdbDAO implements IGridDao {
 		if (persiGrid == null) {
 			return null;
 		}
-		return updateGridInDB(persiGrid);
+		return gridFromDB(persiGrid);
 	}
 
 	@Override
@@ -108,11 +115,25 @@ public class GridCouchdbDAO implements IGridDao {
 
 	@Override
 	public List<Grid> getAllGrids() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		List<Grid> lst = new ArrayList<Grid>();
+		ViewQuery query = new ViewQuery().allDocs();
+		ViewResult vr = db.queryView(query);
 
+		for (Row r : vr.getRows()) {
+			lst.add(getGridById(r.getId()));
+		 
+ 		}
+ 		
+	 	return lst;
+	}
+	
+	private PersiGrid getTheFirstGridFromRowDB(){
 	 
- 
+		ViewQuery query = new ViewQuery().allDocs();
+		ViewResult vr = db.queryView(query);
+	 	String id = vr.getRows().get(0).getValue();	
+		
+	 	return db.find(PersiGrid.class, id);
+	}
 
 }
