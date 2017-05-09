@@ -33,8 +33,7 @@ public class GridHibernateDAO implements IGridDao {
 
 	@Override
 	public List<Grid> getAllGrids() {
-		// TODO Auto-generated method stub
-		return null;
+ 		return null;
 	}
 
 }
