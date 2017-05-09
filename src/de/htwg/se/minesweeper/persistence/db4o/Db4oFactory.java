@@ -8,7 +8,7 @@ import com.db4o.config.EmbeddedConfiguration;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.DAOFactory;
 
-public class DB4OFactory extends DAOFactory {
+public class Db4oFactory extends DAOFactory {
 
 	private static final String DB4ODATABASE = "db4oDatabase.data";
 	private ObjectContainer db;

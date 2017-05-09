@@ -7,7 +7,8 @@ import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.DAOFactory;
 import de.htwg.se.minesweeper.persistence.IGridDao;
 import de.htwg.se.minesweeper.persistence.couchdb.GridCouchdbDAO;
-import de.htwg.se.minesweeper.persistence.db4o.DB4OGridDAO;
+import de.htwg.se.minesweeper.persistence.db4o.GridDb4oDAO;
+import de.htwg.se.minesweeper.persistence.hibernate.GridHibernateDAO;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,7 +35,7 @@ public class Controller extends Observable implements IController {
 
 	private void db4o() throws IOException {
 		DAOFactory.getDAOFactory(DAOFactory.DB4O);
-		dao = new DB4OGridDAO();
+		dao = new GridDb4oDAO();
 
 	}
 
@@ -44,9 +45,16 @@ public class Controller extends Observable implements IController {
 
 	}
 
+
+	private void hibernate() throws IOException {
+		DAOFactory.getDAOFactory(DAOFactory.Hibernate);
+		dao = new GridHibernateDAO();
+
+	}
 	public Controller() throws IOException {
-		 db4o();
+		 //db4o();
 		 //couchDB();
+		hibernate();
 		startNewGame();
 
 	}

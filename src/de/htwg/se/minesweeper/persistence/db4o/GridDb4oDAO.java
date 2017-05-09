@@ -8,12 +8,12 @@ import com.db4o.query.Predicate;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
 
-public class DB4OGridDAO implements IGridDao {
+public class GridDb4oDAO implements IGridDao {
 
 	ObjectContainer db;
 
-	public DB4OGridDAO() throws IOException {
-		db = new DB4OFactory().connection();
+	public GridDb4oDAO() throws IOException {
+		db = new Db4oFactory().connection();
 	}
 
 	@Override
