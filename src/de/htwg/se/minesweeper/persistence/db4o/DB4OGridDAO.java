@@ -13,7 +13,7 @@ public class DB4OGridDAO implements IGridDao {
 	ObjectContainer db;
 
 	public DB4OGridDAO() throws IOException {
-		db = new DB4ODAOFactory().connection();
+		db = new DB4OFactory().connection();
 	}
 
 	@Override

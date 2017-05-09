@@ -1,6 +1,9 @@
 package de.htwg.se.minesweeper.persistence;
 
-import de.htwg.se.minesweeper.persistence.db4o.DB4ODAOFactory;
+ 
+import de.htwg.se.minesweeper.persistence.couchdb.CouchDBFactory;
+import de.htwg.se.minesweeper.persistence.db4o.DB4OFactory;
+import de.htwg.se.minesweeper.persistence.hibernate.HibernateFactory;
 
 public abstract class DAOFactory {
 
@@ -13,11 +16,11 @@ public abstract class DAOFactory {
 	public static DAOFactory getDAOFactory(int whichFactory){
 		switch(whichFactory){
 		case DB4O:
-			return new DB4ODAOFactory();
+			return new DB4OFactory();
 		case Hibernate:
-			return null;
+			return new HibernateFactory();
 		case CouchDB:
-			return null;
+			return new CouchDBFactory();
 		default: return null;
 		}
 		
