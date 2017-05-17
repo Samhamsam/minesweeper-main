@@ -13,25 +13,17 @@ public class HibernateFactory extends DAOFactory {
 	private static SessionFactory sessionFactory;
 
 	static {
-//		
-//		try{
-//			final Configuration cfg = new Configuration();
-//			cfg.configure("/hibernate.cfg.xml");
-//			sessionFactory = cfg.buildSessionFactory();
-//	    }
-//
-//	    catch(HibernateException exception){
-//	        System.out.println("Problem creating session factory");
-//	        exception.printStackTrace();
-//
-//	    }
+ 
 		
 		try {
 			Configuration configuration = new Configuration().configure(HibernateFactory.class.getResource("/hibernate.cfg.xml"));
+			
 			StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder();
+			
 			serviceRegistryBuilder.applySettings(configuration.getProperties());
+			 
 			ServiceRegistry serviceRegistry = serviceRegistryBuilder.build();
-			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+ 			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 		}
 			  catch(HibernateException exception){
  			        System.out.println("Problem creating session factory");

@@ -20,7 +20,7 @@ public class PersiGrid implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
 	@Column(name = "id")
-	private String id;
+	private String gridId;
 	
  	@OneToMany(mappedBy = "grid")
 	@Column(name = "cell")
@@ -40,7 +40,7 @@ public class PersiGrid implements Serializable {
 		this.rows = rows;
 		this.col = col;
 		this.mines = mines;
-		this.id = id;
+		this.gridId = id;
 	}
 
 	
@@ -69,10 +69,10 @@ public class PersiGrid implements Serializable {
 		this.mines = mines;
 	}
 	public String getId() {
-		return id;
+		return gridId;
 	}
 	public void setId(String id) {
-		this.id = id;
+		this.gridId = gridId;
 	}
 
 	
