@@ -12,7 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import de.htwg.se.minesweeper.model.Cell.Position;
- 
+
+  
  
   
 @Entity
@@ -41,14 +42,13 @@ public class PersiCell implements Serializable{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private String id;
 	
-	public PersiCell(boolean hasMine, boolean isFlagged, boolean isRevealed, Position position, int surroundingMines,
+	public PersiCell(boolean hasMine, boolean isFlagged, boolean isRevealed,  int surroundingMines,
 			int row, int col) {
 		super();
 		this.hasMine = hasMine;
 		this.isFlagged = isFlagged;
 		this.isRevealed = isRevealed;
-		this.position = position;
-		this.surroundingMines = surroundingMines;
+ 		this.surroundingMines = surroundingMines;
 		this.row = row;
 		this.col = col;
 	}
@@ -124,7 +124,5 @@ public class PersiCell implements Serializable{
 	}
 
 
-	public PersiCell() {
- 	}
-
+ 
 }

@@ -3,14 +3,13 @@ package de.htwg.se.minesweeper.persistence.hibernate;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.Column;
+ import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.OneToMany;
 
-import de.htwg.se.minesweeper.persistence.couchdb.PersiCell;
-  
+   
 
  
 @Entity
@@ -19,8 +18,11 @@ public class PersiGrid implements Serializable {
 
 	 
 	private static final long serialVersionUID = 1L;
+	@Id
+	@Column(name = "id")
+	private String id;
 	
-	@OneToMany(mappedBy = "grid")
+ 	@OneToMany(mappedBy = "grid")
 	@Column(name = "cell")
 	private List<PersiCell> cells;
 	
@@ -28,9 +30,6 @@ public class PersiGrid implements Serializable {
 	private int col;
 	private int mines;
 	
-	@Id
-	@Column(name = "id")
-	private String id;
 	
 	public PersiGrid() {
 		super();

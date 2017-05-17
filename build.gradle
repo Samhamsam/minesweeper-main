@@ -26,7 +26,11 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     testCompile "junit:junit:4.11"
     testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
-    compile 'org.hibernate:hibernate-core:5.2.10.Final'    
+    compile 'org.hibernate:hibernate-core:5.2.10.Final'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+    
+  	
+        
     compile group: 'org.ektorp', name: 'org.ektorp', version: '1.4.4'
  	compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
   
