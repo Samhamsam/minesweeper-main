@@ -1,11 +1,9 @@
 package de.htwg.se.minesweeper.persistence.hibernate;
 
-import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
-
 import de.htwg.se.minesweeper.persistence.DAOFactory;
 
 public class HibernateFactory extends DAOFactory {
@@ -13,26 +11,19 @@ public class HibernateFactory extends DAOFactory {
 	private static SessionFactory sessionFactory;
 
 	static {
- 
-		
-		try {
-			Configuration configuration = new Configuration().configure(HibernateFactory.class.getResource("/hibernate.cfg.xml"));
-			
-			StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder();
-			
-			serviceRegistryBuilder.applySettings(configuration.getProperties());
-			 
-			ServiceRegistry serviceRegistry = serviceRegistryBuilder.build();
- 			sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-		}
-			  catch(HibernateException exception){
- 			        System.out.println("Problem creating session factory");
- 			        exception.printStackTrace();
-		}
-	
-	}
 
-	
+		final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+				.configure(HibernateFactory.class.getResource("/hibernate.cfg.xml")).build();
+		try {
+			sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
+		} catch (Exception ex) {
+
+			StandardServiceRegistryBuilder.destroy(registry);
+			System.err.println("Failed to create sessionFactory object." + ex);
+			throw new ExceptionInInitializerError(ex);
+		}
+
+	}
 
 	public static SessionFactory getInstance() {
 		return sessionFactory;

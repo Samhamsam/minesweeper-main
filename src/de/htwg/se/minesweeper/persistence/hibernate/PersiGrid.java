@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 
  
 @Entity
-@Table(name = "grid")
+@Table(name = "GRID")
 public class PersiGrid implements Serializable {
 
 	 
@@ -22,7 +22,7 @@ public class PersiGrid implements Serializable {
 	@Column(name = "id")
 	private String gridId;
 	
- 	@OneToMany(mappedBy = "grid")
+ 	@OneToMany(mappedBy = "persiGrid")
 	@Column(name = "cell")
 	private List<PersiCell> cells;
 	
@@ -72,7 +72,7 @@ public class PersiGrid implements Serializable {
 		return gridId;
 	}
 	public void setId(String id) {
-		this.gridId = gridId;
+		this.gridId = id;
 	}
 
 	
