@@ -54,7 +54,7 @@ public class Controller extends Observable implements IController {
 	public Controller() throws IOException {
 		 //db4o();
 		 //couchDB();
-		hibernate();
+	//	hibernate();
 		startNewGame();
 
 	}

@@ -49,21 +49,22 @@ public class GridHibernateDAO implements IGridDao {
 		String id = grid.getId();
 		// String id = UUID.randomUUID().toString();
 
-	 	if (containsGridById(id)) {
+	// 	if (containsGridById(id)) {
 
-			try {
-				Session session = HibernateFactory.getInstance().getCurrentSession();
-				// session.beginTransaction();
-				persiGrid = (PersiGrid) session.get(PersiGrid.class, id);
-				System.out.println("---------------");
-			} catch (Exception ex) {
-
-			throw new RuntimeException(ex.getMessage());
- 
-			}
-	 	} else {
-		 persiGrid = new PersiGrid();
-		 }
+//			try {
+//				Session session = HibernateFactory.getInstance().openSession();
+//				 session.beginTransaction();
+//				persiGrid = (PersiGrid) session.get(PersiGrid.class, id);
+//				System.out.println("---------------");
+//				System.out.println(persiGrid.getId());
+//			} catch (Exception ex) {
+//
+//			throw new RuntimeException(ex.getMessage());
+// 
+//			}
+	// 	} else {
+		  persiGrid = new PersiGrid();
+	 	// }
 
 		List<PersiCell> cells = new LinkedList<PersiCell>();
 		for (Cell cell : grid.getCells()) {
@@ -75,7 +76,8 @@ public class GridHibernateDAO implements IGridDao {
 		persiGrid.setCol(grid.getNumberOfColumns());
 		persiGrid.setRows(grid.getNumberOfRows());
 		persiGrid.setMines(grid.getNumberOfMines());
-
+		System.out.println("--s---s-----s----");
+		System.out.println(persiGrid.getId());
 		return persiGrid;
 
 	}
@@ -149,10 +151,12 @@ public class GridHibernateDAO implements IGridDao {
 	//	Session session = null;
 		try {
 			Session session = HibernateFactory.getInstance().getCurrentSession();
-	 		session.beginTransaction();
-			return gridFromDB((PersiGrid) session.get(PersiGrid.class, id));
+	 		//session.beginTransaction();
+			 
+			Grid grid =  gridFromDB((PersiGrid) session.get(PersiGrid.class, id));
 		//	tx.commit();
 		//	session.close();
+			return grid;
 		} catch (HibernateException ex) {
 			//if (tx != null)
 				//tx.rollback();

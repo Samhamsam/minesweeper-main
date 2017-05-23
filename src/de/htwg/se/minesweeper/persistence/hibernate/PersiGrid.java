@@ -32,7 +32,7 @@ public class PersiGrid implements Serializable {
 	
 	
 	public PersiGrid() {
-		super();
+//		super();
 	}
 	public PersiGrid(List<PersiCell> cells, int rows, int col, int mines, String id) {
 		super();

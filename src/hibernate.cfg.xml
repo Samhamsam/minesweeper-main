@@ -5,8 +5,8 @@
 <hibernate-configuration>
 	<session-factory>
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-	   	<property name="hibernate.connection.url">jdbc:mysql://lenny2.in.htwg-konstanz.de:3306/minesweeper_ma2017hibernate?createDatabaseIfNotExist=true</property>
-	 
+	   	<property name="hibernate.connection.url">jdbc:mysql://lenny2.in.htwg-konstanz.de:3306/minesweeper_ma2017h?createDatabaseIfNotExist=true</property>
+ 	 
  		<property name="hibernate.connection.username">htwg</property>
 		<property name="hibernate.connection.password">htwg</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
@@ -15,7 +15,7 @@
     	<property name="hibernate.hbm2ddl.auto">update</property>
 
 		<property name="hibernate.show_sql">false</property>
-		<property name="hibernate.connection.pool_size">1</property>
+	 
 		<property name="hibernate.enable_lazy_load_no_trans">true</property>
  
 		<property name="hibernate.temp.use_jdbc_metadata_defaults">false</property>
