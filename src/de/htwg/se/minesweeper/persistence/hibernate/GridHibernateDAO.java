@@ -39,7 +39,7 @@ public class GridHibernateDAO implements IGridDao {
 		return new Cell(cellCouch.isHasMine(), cellCouch.isFlagged(), cellCouch.isRevealed(),
 				cellCouch.getSurroundingMines(), cellCouch.getRow(), cellCouch.getCol());
 
-	}
+	} 
 
 	private PersiGrid copyGridToDB(Grid grid) {
 		if (grid == null) {
