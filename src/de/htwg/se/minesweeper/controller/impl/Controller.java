@@ -54,7 +54,7 @@ public class Controller extends Observable implements IController {
 	public Controller() throws IOException {
 		 //db4o();
 		 //couchDB();
-	//	hibernate();
+		hibernate();
 		startNewGame();
 
 	}
@@ -106,7 +106,7 @@ public class Controller extends Observable implements IController {
 		try {
 			// TODO this tow lines can be called from GUI (either new Grid or
 			// load from DB)
-			 this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+		 this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
 			// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
