@@ -18,7 +18,7 @@ public final class Minesweeper {
 	private static Minesweeper instance = null;
 
 	private Minesweeper() throws IOException {
-		 Injector inject = Guice.createInjector();
+		 Injector inject = Guice.createInjector(new MinesweeperModule());
 		 controller = inject.getInstance(IController.class);
  	//	controller = new Controller();
 
