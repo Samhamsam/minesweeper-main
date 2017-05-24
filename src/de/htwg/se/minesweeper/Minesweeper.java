@@ -21,7 +21,7 @@ public final class Minesweeper {
 		 Injector inject = Guice.createInjector(new MinesweeperModule());
 		 controller = inject.getInstance(IController.class);
  	//	controller = new Controller();
-
+		 
 		tui = new TUI(controller);
 		 new GUI(controller);
 		tui.printTUI();
