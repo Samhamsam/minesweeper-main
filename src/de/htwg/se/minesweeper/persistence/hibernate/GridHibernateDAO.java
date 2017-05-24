@@ -1,31 +1,33 @@
 package de.htwg.se.minesweeper.persistence.hibernate;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.Criteria;
+import org.hibernate.query.Query;
+
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
  
-  
 
 public class GridHibernateDAO implements IGridDao {
 
 	private Grid gridFromDB(PersiGrid persiGrid) {
-		if(persiGrid == null) {
+		if (persiGrid == null) {
 			return null;
 		}
 		Grid grid = new Grid(persiGrid.getRows(), persiGrid.getCol(), persiGrid.getMines());
 		grid.setId(persiGrid.getId());
-
+		System.out.println(persiGrid.getCells().size());
 		for (PersiCell cellCouch : persiGrid.getCells()) {
 			Cell updateCells = this.updateCellInDB(cellCouch);
 
@@ -43,7 +45,7 @@ public class GridHibernateDAO implements IGridDao {
 		return new Cell(cellCouch.isHasMine(), cellCouch.isFlagged(), cellCouch.isRevealed(),
 				cellCouch.getSurroundingMines(), cellCouch.getRow(), cellCouch.getCol());
 
-	} 
+	}
 
 	private PersiGrid copyGridToDB(Grid grid) {
 		if (grid == null) {
@@ -53,28 +55,27 @@ public class GridHibernateDAO implements IGridDao {
 		String id = grid.getId();
 		// String id = UUID.randomUUID().toString();
 
-	 	if (containsGridById(id)) {
+		if (containsGridById(id)) {
 
 			try {
 				Session session = HibernateFactory.getInstance().openSession();
-				 session.beginTransaction();
+				session.beginTransaction();
 				persiGrid = (PersiGrid) session.get(PersiGrid.class, id);
-				System.out.println("---------------");
-				System.out.println(persiGrid.getId());
+
 			} catch (Exception ex) {
 
-			throw new RuntimeException(ex.getMessage());
- 
+				throw new RuntimeException(ex.getMessage());
+
 			}
-	  	} else {
-		  persiGrid = new PersiGrid();
- 	  	 }
-	 	PersiCell pcell = null;
+		} else {
+			persiGrid = new PersiGrid();
+		}
+		PersiCell pcell = null;
 		List<PersiCell> cells = new LinkedList<PersiCell>();
 		for (Cell cell : grid.getCells()) {
-			  pcell = this.cellsToDB(cell);
-			cells.add(this.cellsToDB(cell));
-			
+			pcell = this.cellsToDB(cell);
+			cells.add(pcell);
+
 		}
 		pcell.setGrid(persiGrid);
 		persiGrid.setId(id);
@@ -82,8 +83,7 @@ public class GridHibernateDAO implements IGridDao {
 		persiGrid.setCol(grid.getNumberOfColumns());
 		persiGrid.setRows(grid.getNumberOfRows());
 		persiGrid.setMines(grid.getNumberOfMines());
-		System.out.println("--s---s-----s----");
-		System.out.println(persiGrid.getId());
+
 		return persiGrid;
 
 	}
@@ -100,11 +100,12 @@ public class GridHibernateDAO implements IGridDao {
 
 		try {
 			session = HibernateFactory.getInstance().getCurrentSession();
-		tx = session.beginTransaction();
+			tx = session.beginTransaction();
 
 			PersiGrid persigrid = copyGridToDB(grid);
 			session.saveOrUpdate(persigrid);
 			for (PersiCell persicell : persigrid.getCells()) {
+				System.out.println(persigrid.getCells().size());
 				session.saveOrUpdate(persicell);
 			}
 
@@ -152,24 +153,24 @@ public class GridHibernateDAO implements IGridDao {
 
 	@Override
 	public Grid getGridById(String id) {
-	//	Grid grid = null;
-	//	Transaction tx = null;
-	//	Session session = null;
+		// Grid grid = null;
+		// Transaction tx = null;
+		// Session session = null;
 		try {
 			Session session = HibernateFactory.getInstance().getCurrentSession();
-	//session.beginTransaction();
-			 
-			Grid grid =  gridFromDB((PersiGrid) session.get(PersiGrid.class, id));
-		//	tx.commit();
-		//	session.close();
+			// session.beginTransaction();
+
+			Grid grid = gridFromDB((PersiGrid) session.get(PersiGrid.class, id));
+			// tx.commit();
+			// session.close();
 			return grid;
 		} catch (HibernateException ex) {
-			//if (tx != null)
-				//tx.rollback();
+			// if (tx != null)
+			// tx.rollback();
 			throw new RuntimeException(ex.getMessage());
 
-		}  
- 	}
+		}
+	}
 
 	@Override
 	public boolean containsGridById(String id) {
@@ -181,35 +182,29 @@ public class GridHibernateDAO implements IGridDao {
 
 	@Override
 	public List<Grid> getAllGrids() {
-//		Session session = HibernateFactory.getInstance().getCurrentSession();
-//		session.beginTransaction();
-//
-//		CriteriaBuilder builder = session.getCriteriaBuilder();
-//
-//		CriteriaQuery<PersiGrid> criteria = builder.createQuery(PersiGrid.class);
-//
-//		@SuppressWarnings("unchecked")
-//		List<PersiGrid> results = (List<PersiGrid>) criteria.from(PersiGrid.class);
-//
-//		List<Grid> grids = new ArrayList<Grid>();
-//		for (PersiGrid pgrid : results) {
-//			Grid grid = gridFromDB(pgrid);
-//			grids.add(grid);
-//		}
+
 		Session session = HibernateFactory.getInstance().getCurrentSession();
+
 		session.beginTransaction();
-	 	Criteria  criteria = session.createCriteria(PersiGrid.class);		
-	//	CriteriaBuilder builder = session.getCriteriaBuilder();
-		 
- 		//		CriteriaQuery<PersiGrid> criteria = builder.createQuery(PersiGrid.class);
-		@SuppressWarnings("unchecked")
-		List<PersiGrid> results = criteria.list();
- 		List<Grid> grids = new ArrayList<Grid>();
-		for (PersiGrid pgrid : results) {
-			 Grid grid = gridFromDB(pgrid);
+		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+		CriteriaQuery<PersiGrid> criteriaQuery = criteriaBuilder.createQuery(PersiGrid.class);
+		Root<PersiGrid> root = criteriaQuery.from(PersiGrid.class);
+		criteriaQuery.select(root);
+		Query<PersiGrid> query = session.createQuery(criteriaQuery);
+		List<PersiGrid> pgrids = query.getResultList();
+		List<Grid> grids = new ArrayList<Grid>();
+		for (PersiGrid pgrid : pgrids) {
+			System.out.println(pgrid.getCells().size());
+			Grid grid = gridFromDB(pgrid);
 			grids.add(grid);
 		}
-		return grids;
- 	}
 
+		return grids;
+	}
+//	private void assignCells(Grid grid, Session session) {
+//		Query query = session.createQuery("FROM Cell where grid_id=" + grid.getId());
+//		List<Cell> cells = (List<Cell>) query.list();
+//
+//		grid.setCells(cells);
+//	}
 }

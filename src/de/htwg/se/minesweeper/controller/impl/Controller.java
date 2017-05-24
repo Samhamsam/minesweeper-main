@@ -13,6 +13,7 @@ import de.htwg.se.minesweeper.persistence.hibernate.GridHibernateDAO;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import com.google.inject.Inject;
 
 /**
  * @author Niels Boecker
@@ -33,28 +34,30 @@ public class Controller extends Observable implements IController {
 
 	private IGridDao dao;
 
-	private void db4o() throws IOException {
-		DAOFactory.getDAOFactory(DAOFactory.DB4O);
-		dao = new GridDb4oDAO();
-
-	}
-
-	private void couchDB() throws IOException {
-		DAOFactory.getDAOFactory(DAOFactory.CouchDB);
-		dao = new GridCouchdbDAO();
-
-	}
-
-
-	private void hibernate() throws IOException {
-		DAOFactory.getDAOFactory(DAOFactory.Hibernate);
-		dao = new GridHibernateDAO();
-
-	}
-	public Controller() throws IOException {
+//	private void db4o() throws IOException {
+//		DAOFactory.getDAOFactory(DAOFactory.DB4O);
+//		dao = new GridDb4oDAO();
+//
+//	}
+//
+//	private void couchDB() throws IOException {
+//		DAOFactory.getDAOFactory(DAOFactory.CouchDB);
+//		dao = new GridCouchdbDAO();
+//
+//	}
+//
+//
+//	private void hibernate() throws IOException {
+//		DAOFactory.getDAOFactory(DAOFactory.Hibernate);
+//		dao = new GridHibernateDAO();
+//
+//	}
+	@Inject
+	public Controller(IGridDao dao) throws IOException {
 		 //db4o();
 		 //couchDB();
-		hibernate();
+		//hibernate();
+		this.dao = dao;
 		startNewGame();
 
 	}
@@ -106,8 +109,8 @@ public class Controller extends Observable implements IController {
 		try {
 			// TODO this tow lines can be called from GUI (either new Grid or
 			// load from DB)
-		 // this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-		  	 this.grid = loadDB();
+			 	this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+		// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();

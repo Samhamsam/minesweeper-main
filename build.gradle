@@ -31,7 +31,7 @@ dependencies {
     compile 'com.typesafe.akka:akka-actor_2.11:2.5.1'
     compile 'com.typesafe.akka:akka-stream_2.11:2.5.1'
     compile 'com.typesafe.akka:akka-http-core_2.11:10.0.6'
-
+ 
     
   	
         

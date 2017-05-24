@@ -6,7 +6,7 @@
 	<session-factory>
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 		<!-- <property name="hibernate.connection.url">jdbc:mysql://lenny2.in.htwg-konstanz.de:3306/minesweeper_ma2017h?createDatabaseIfNotExist=true</property> -->
-		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/minesweeper_maSS17?createDatabaseIfNotExist=true</property>
+		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/minesweeper_ma_SS2017?createDatabaseIfNotExist=true</property>
 		<property name="hibernate.connection.username">root</property>
 		<property name="hibernate.connection.password">htwg</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>

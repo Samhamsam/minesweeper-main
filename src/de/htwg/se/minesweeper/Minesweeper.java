@@ -3,27 +3,27 @@ package de.htwg.se.minesweeper;
 import de.htwg.se.minesweeper.aview.gui.GUI;
 import de.htwg.se.minesweeper.aview.tui.TUI;
 import de.htwg.se.minesweeper.controller.IController;
-import de.htwg.se.minesweeper.controller.impl.Controller;
-
+ 
 import java.io.IOException;
 import java.util.Scanner;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public final class Minesweeper {
 	// test push
 	private static Scanner scanner;
 	private TUI tui;
-	private GUI gui;
-	protected IController controller;
+ 	protected IController controller;
 	private static Minesweeper instance = null;
 
 	private Minesweeper() throws IOException {
-		// Injector inject = Guice.createInjector();
-		// controller = inject.getInstance(IController.class);
-		// TODO Mark: juice
-		controller = new Controller();
+		 Injector inject = Guice.createInjector();
+		 controller = inject.getInstance(IController.class);
+ 	//	controller = new Controller();
 
 		tui = new TUI(controller);
-		gui = new GUI(controller);
+		 new GUI(controller);
 		tui.printTUI();
 	}
 

@@ -11,8 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
- 
- 
 @Entity
 @Table(name = "CELL")
 public class PersiCell implements Serializable {
@@ -37,6 +35,10 @@ public class PersiCell implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+
+	protected PersiCell() {
+
+	}
 
 	public PersiCell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines, int row, int col) {
 		super();
@@ -72,8 +74,6 @@ public class PersiCell implements Serializable {
 		this.isRevealed = isRevealed;
 	}
 
- 
-
 	public int getSurroundingMines() {
 		return surroundingMines;
 	}
@@ -97,6 +97,7 @@ public class PersiCell implements Serializable {
 	public void setCol(int col) {
 		this.col = col;
 	}
+
 	public PersiGrid getGrid() {
 		return persiGrid;
 	}
@@ -104,6 +105,5 @@ public class PersiCell implements Serializable {
 	public void setGrid(PersiGrid grid) {
 		this.persiGrid = grid;
 	}
- 
 
 }
