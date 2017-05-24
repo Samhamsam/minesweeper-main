@@ -10,15 +10,19 @@ import javax.persistence.criteria.CriteriaQuery;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
+import org.hibernate.Criteria;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
+ 
+  
 
 public class GridHibernateDAO implements IGridDao {
 
 	private Grid gridFromDB(PersiGrid persiGrid) {
-
+		if(persiGrid == null) {
+			return null;
+		}
 		Grid grid = new Grid(persiGrid.getRows(), persiGrid.getCol(), persiGrid.getMines());
 		grid.setId(persiGrid.getId());
 
@@ -49,7 +53,7 @@ public class GridHibernateDAO implements IGridDao {
 		String id = grid.getId();
 		// String id = UUID.randomUUID().toString();
 
-	  	if (containsGridById(id)) {
+	 	if (containsGridById(id)) {
 
 			try {
 				Session session = HibernateFactory.getInstance().openSession();
@@ -62,15 +66,17 @@ public class GridHibernateDAO implements IGridDao {
 			throw new RuntimeException(ex.getMessage());
  
 			}
-	 	} else {
+	  	} else {
 		  persiGrid = new PersiGrid();
-	 	 }
-
+ 	  	 }
+	 	PersiCell pcell = null;
 		List<PersiCell> cells = new LinkedList<PersiCell>();
 		for (Cell cell : grid.getCells()) {
+			  pcell = this.cellsToDB(cell);
 			cells.add(this.cellsToDB(cell));
+			
 		}
-
+		pcell.setGrid(persiGrid);
 		persiGrid.setId(id);
 		persiGrid.setCells(cells);
 		persiGrid.setCol(grid.getNumberOfColumns());
@@ -151,7 +157,7 @@ public class GridHibernateDAO implements IGridDao {
 	//	Session session = null;
 		try {
 			Session session = HibernateFactory.getInstance().getCurrentSession();
-	 	//	session.beginTransaction();
+	//session.beginTransaction();
 			 
 			Grid grid =  gridFromDB((PersiGrid) session.get(PersiGrid.class, id));
 		//	tx.commit();
@@ -175,22 +181,35 @@ public class GridHibernateDAO implements IGridDao {
 
 	@Override
 	public List<Grid> getAllGrids() {
+//		Session session = HibernateFactory.getInstance().getCurrentSession();
+//		session.beginTransaction();
+//
+//		CriteriaBuilder builder = session.getCriteriaBuilder();
+//
+//		CriteriaQuery<PersiGrid> criteria = builder.createQuery(PersiGrid.class);
+//
+//		@SuppressWarnings("unchecked")
+//		List<PersiGrid> results = (List<PersiGrid>) criteria.from(PersiGrid.class);
+//
+//		List<Grid> grids = new ArrayList<Grid>();
+//		for (PersiGrid pgrid : results) {
+//			Grid grid = gridFromDB(pgrid);
+//			grids.add(grid);
+//		}
 		Session session = HibernateFactory.getInstance().getCurrentSession();
 		session.beginTransaction();
-
-		CriteriaBuilder builder = session.getCriteriaBuilder();
-
-		CriteriaQuery<PersiGrid> criteria = builder.createQuery(PersiGrid.class);
-
+	 	Criteria  criteria = session.createCriteria(PersiGrid.class);		
+	//	CriteriaBuilder builder = session.getCriteriaBuilder();
+		 
+ 		//		CriteriaQuery<PersiGrid> criteria = builder.createQuery(PersiGrid.class);
 		@SuppressWarnings("unchecked")
-		List<PersiGrid> results = (List<PersiGrid>) criteria.from(PersiGrid.class);
-
-		List<Grid> grids = new ArrayList<Grid>();
+		List<PersiGrid> results = criteria.list();
+ 		List<Grid> grids = new ArrayList<Grid>();
 		for (PersiGrid pgrid : results) {
-			Grid grid = gridFromDB(pgrid);
+			 Grid grid = gridFromDB(pgrid);
 			grids.add(grid);
 		}
 		return grids;
-	}
+ 	}
 
 }

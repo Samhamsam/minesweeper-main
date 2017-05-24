@@ -5,22 +5,24 @@
 <hibernate-configuration>
 	<session-factory>
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-	 <!--   	<property name="hibernate.connection.url">jdbc:mysql://lenny2.in.htwg-konstanz.de:3306/minesweeper_ma2017h?createDatabaseIfNotExist=true</property>--> 
- 	  	<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/minesweeper_ss17?createDatabaseIfNotExist=true</property>
- 		<property name="hibernate.connection.username">root</property>
+		<!-- <property name="hibernate.connection.url">jdbc:mysql://lenny2.in.htwg-konstanz.de:3306/minesweeper_ma2017h?createDatabaseIfNotExist=true</property> -->
+		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/minesweeper_maSS17?createDatabaseIfNotExist=true</property>
+		<property name="hibernate.connection.username">root</property>
 		<property name="hibernate.connection.password">htwg</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
 
 		<property name="hibernate.current_session_context_class">thread</property>
-    	<property name="hibernate.hbm2ddl.auto">update</property>
-   	   <property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
-
+		<property name="hibernate.hbm2ddl.auto">update</property>
+		<property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
+		<property name="format_sql">true</property>
+		<property name="use_sql_comments">true</property>
 		<property name="hibernate.show_sql">true</property>
-	 
+
 		<property name="hibernate.enable_lazy_load_no_trans">true</property>
- 
+
 		<property name="hibernate.temp.use_jdbc_metadata_defaults">false</property>
 		<mapping class="de.htwg.se.minesweeper.persistence.hibernate.PersiGrid" />
 		<mapping class="de.htwg.se.minesweeper.persistence.hibernate.PersiCell" />
+
 	</session-factory>
 </hibernate-configuration>
