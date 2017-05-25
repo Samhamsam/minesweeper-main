@@ -20,9 +20,14 @@ public class PersiCell implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "gridid")
 	private PersiGrid persiGrid;
+	@Column(name = "hasMine")
 
 	private boolean hasMine;
+	@Column(name = "isFlagged")
+
 	private boolean isFlagged;
+	@Column(name = "isReleaved")
+
 	private boolean isRevealed;
 	// private Position position;
 	private int surroundingMines;
@@ -41,7 +46,7 @@ public class PersiCell implements Serializable {
 	}
 
 	public PersiCell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines, int row, int col) {
-		super();
+	//	super();
 		this.hasMine = hasMine;
 		this.isFlagged = isFlagged;
 		this.isRevealed = isRevealed;

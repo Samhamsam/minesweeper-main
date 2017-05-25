@@ -32,7 +32,7 @@ public class Cell {
 	}
 
 	public Cell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines,int row, int col) {
-		super();
+	//	super();
 		this.hasMine = hasMine;
 		this.isFlagged = isFlagged;
 		this.isRevealed = isRevealed;

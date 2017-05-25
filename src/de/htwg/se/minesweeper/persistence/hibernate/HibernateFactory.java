@@ -4,9 +4,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import de.htwg.se.minesweeper.persistence.DAOFactory;
+//import de.htwg.se.minesweeper.persistence.DAOFactory;
 
-public class HibernateFactory extends DAOFactory {
+public class HibernateFactory   {
 
 	private static SessionFactory sessionFactory;
 

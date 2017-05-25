@@ -10,10 +10,9 @@ import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
-import de.htwg.se.minesweeper.persistence.DAOFactory;
-
  
-public class CouchDBFactory extends DAOFactory {
+ 
+public class CouchDBFactory  {
 
 	private CouchDbConnector db = null;
  	private static final Logger LOGGER = LogManager.getRootLogger();

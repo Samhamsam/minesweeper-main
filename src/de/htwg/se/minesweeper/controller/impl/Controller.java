@@ -4,12 +4,7 @@ import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
-import de.htwg.se.minesweeper.persistence.DAOFactory;
-import de.htwg.se.minesweeper.persistence.IGridDao;
-import de.htwg.se.minesweeper.persistence.couchdb.GridCouchdbDAO;
-import de.htwg.se.minesweeper.persistence.db4o.GridDb4oDAO;
-import de.htwg.se.minesweeper.persistence.hibernate.GridHibernateDAO;
-
+ import de.htwg.se.minesweeper.persistence.IGridDao;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,33 +25,13 @@ public class Controller extends Observable implements IController {
 	// for time measuring
 	private long timeOfGameStartMills;
 	private long elapsedTimeSeconds;
-	// private DAOFactory FACTORY;
-
+ 
 	private IGridDao dao;
 
-//	private void db4o() throws IOException {
-//		DAOFactory.getDAOFactory(DAOFactory.DB4O);
-//		dao = new GridDb4oDAO();
-//
-//	}
-//
-//	private void couchDB() throws IOException {
-//		DAOFactory.getDAOFactory(DAOFactory.CouchDB);
-//		dao = new GridCouchdbDAO();
-//
-//	}
-//
-//
-//	private void hibernate() throws IOException {
-//		DAOFactory.getDAOFactory(DAOFactory.Hibernate);
-//		dao = new GridHibernateDAO();
-//
-//	}
+ 
 	@Inject
 	public Controller(IGridDao dao) throws IOException {
-		 //db4o();
-		 //couchDB();
-		//hibernate();
+	 
 		this.dao = dao;
 		startNewGame();
 
@@ -107,10 +82,9 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
-			// TODO this tow lines can be called from GUI (either new Grid or
-			// load from DB)
-			 	this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-		// this.grid = loadDB();
+		
+			//this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+			this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
@@ -122,13 +96,14 @@ public class Controller extends Observable implements IController {
 	private Grid loadDB() {
 
 		List<Grid> allGrids = dao.getAllGrids();
-//		for (Grid grid : allGrids) {
-			Grid g = allGrids.get(0);
-			System.out.println(g.getId());
-			return dao.getGridById(g.getId());
+		for (Grid grid : allGrids) {
+			System.out.println(grid.getId());
+			System.out.println("------------------- " + allGrids.size());
 
-	//	}
-	//	return null;
+			return dao.getGridById(grid.getId());
+
+		}
+		return null;
 
 	}
 
