@@ -1,5 +1,6 @@
 package de.htwg.se.minesweeper.aview.gui;
 
+import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
 
 import javax.swing.*;
@@ -20,11 +21,11 @@ public class GUISettings {
 	private int newRowColumn;
 	private int newMines;
 
-	private IController controller;
+	private IAkkaController controller;
 	static JSlider rowColSlider = new JSlider(JSlider.HORIZONTAL);
 	static JSlider mineSlider = new JSlider(JSlider.HORIZONTAL);
 
-	public GUISettings(int initialValueColumnAndRow, int initialValueMines, IController controller,
+	public GUISettings(int initialValueColumnAndRow, int initialValueMines, IAkkaController controller,
 			Frame settingsFrame) {
 		this.controller = controller;
 		this.settingsFrame = settingsFrame;

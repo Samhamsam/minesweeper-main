@@ -1,5 +1,6 @@
 package de.htwg.se.minesweeper.aview.tui;
 
+import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.designpattern.observer.Event;
 import de.htwg.se.minesweeper.designpattern.observer.IObserver;
@@ -24,9 +25,9 @@ public class TUI implements IObserver {
 
 	private String lastUserInput = "";
 
-	private IController controller;
+	private IAkkaController controller;
 
-	public TUI(IController controller) {
+	public TUI(IAkkaController controller) {
 		this.controller = controller;
 		controller.addObserver(this);
 	}

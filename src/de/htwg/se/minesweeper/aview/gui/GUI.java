@@ -1,5 +1,6 @@
 package de.htwg.se.minesweeper.aview.gui;
 
+import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.designpattern.observer.Event;
 import de.htwg.se.minesweeper.designpattern.observer.IObserver;
@@ -14,7 +15,7 @@ import java.awt.event.MouseListener;
 public class GUI extends JFrame implements ActionListener, IObserver, MouseListener {
 	private static final long serialVersionUID = 1L;
 	private JButton[][] gridAsJButtons;
-	private IController controller;
+	private IAkkaController controller;
 	private GUISettings guiSettings;
 
 	JFrame mainFrame;
@@ -24,7 +25,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	JMenuItem newGame;
 	JMenuItem quit, settingsmenu, help;
 
-	public GUI(IController controller) {
+	public GUI(IAkkaController controller) {
 		this.controller = controller;
 		controller.addObserver(this);
 		mainFrame = new JFrame("Minesweeper");
