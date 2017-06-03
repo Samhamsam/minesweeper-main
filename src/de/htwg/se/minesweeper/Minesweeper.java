@@ -1,29 +1,37 @@
 package de.htwg.se.minesweeper;
 
+import de.htwg.se.minesweeper.aview.AkkaHTTP;
 import de.htwg.se.minesweeper.aview.gui.GUI;
 import de.htwg.se.minesweeper.aview.tui.TUI;
-import de.htwg.se.minesweeper.controller.IController;
- 
+import de.htwg.se.minesweeper.controller.IAkkaController;
+import de.htwg.se.minesweeper.controller.impl.AkkaController;
+
 import java.io.IOException;
 import java.util.Scanner;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+ 
+
 public final class Minesweeper {
 	// test push
 	private static Scanner scanner;
 	private TUI tui;
- 	protected IController controller;
+ 	protected IAkkaController controller;
 	private static Minesweeper instance = null;
-
+	private static AkkaHTTP akkaHTTP;
+	
 	private Minesweeper() throws IOException {
 		 Injector inject = Guice.createInjector(new MinesweeperModule());
-		 controller = inject.getInstance(IController.class);
+		 controller = inject.getInstance(IAkkaController.class);
  	//	controller = new Controller();
 		 
 		tui = new TUI(controller);
 		 new GUI(controller);
+		 if (controller instanceof IAkkaController) {
+			 akkaHTTP = new AkkaHTTP(controller);
+			}
 		tui.printTUI();
 	}
 
@@ -38,7 +46,7 @@ public final class Minesweeper {
 		return tui;
 	}
 
-	public IController getController() {
+	public IAkkaController getController() {
 		return controller;
 	}
 
