@@ -12,9 +12,12 @@ import java.util.Scanner;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+import akka.actor.AbstractActor;
+import akka.actor.Props;
+
  
 
-public final class Minesweeper {
+public final class Minesweeper extends AbstractActor{
 	// test push
 	private static Scanner scanner;
 	private TUI tui;
@@ -50,7 +53,7 @@ public final class Minesweeper {
 		return controller;
 	}
 
-	public static void main(final String[] args) throws IOException {
+/*	public static void main(final String[] args) throws IOException {
 
 		Minesweeper game = Minesweeper.getInstance();
 
@@ -60,6 +63,26 @@ public final class Minesweeper {
 		while (loop) {
 			loop = game.getTUI().processInput(scanner.next());
 		}
+	}*/
+
+	@Override
+	public Receive createReceive() {
+		return receiveBuilder()
+				.matchAny(s->{
+					Minesweeper game = Minesweeper.getInstance();
+
+					boolean loop = true;
+					scanner = new Scanner(System.in);
+
+					while (loop) {
+						loop = game.getTUI().processInput(scanner.next());
+					}
+				})
+				.build();
+	}
+	
+	static Props props(){
+		return Props.create(Minesweeper.class);
 	}
 
 }
