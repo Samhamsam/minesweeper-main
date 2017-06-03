@@ -48,4 +48,8 @@ public interface IController extends IObservable {
 	enum State {
 		NEW_GAME, INFO_TEXT, REVEAL_CELL, TOGGLE_FLAG, HELP_TEXT, GAME_WON, GAME_LOST, ERROR, CHANGE_SETTINGS_ACTIVATED, CHANGE_SETTINGS_SUCCESS
 	}
+
+ 
+
+	 
 }

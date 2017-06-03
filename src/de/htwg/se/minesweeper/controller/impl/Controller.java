@@ -1,8 +1,10 @@
 package de.htwg.se.minesweeper.controller.impl;
 
+import de.htwg.se.minesweeper.aview.AkkaHTTP;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
+import de.htwg.se.minesweeper.model.Cell.Position;
 import de.htwg.se.minesweeper.model.Grid;
  import de.htwg.se.minesweeper.persistence.IGridDao;
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import com.google.inject.Inject;
 
+ 
+ 
 /**
  * @author Niels Boecker
  * @author Mark Unger
@@ -21,15 +25,14 @@ public class Controller extends Observable implements IController {
 	private static final String DEFAULT_SIZE = "small";
 	private Grid grid;
 	private State state;
+	private Cell cell;
 
 	// for time measuring
 	private long timeOfGameStartMills;
 	private long elapsedTimeSeconds;
- 
-	private IGridDao dao;
+ 	private IGridDao dao;
 
  
-	@Inject
 	public Controller(IGridDao dao) throws IOException {
 	 
 		this.dao = dao;
@@ -83,8 +86,8 @@ public class Controller extends Observable implements IController {
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
 		
-			//this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-			this.grid = loadDB();
+			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
+			//this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
@@ -248,9 +251,10 @@ public class Controller extends Observable implements IController {
 	public Grid getGrid() {
 		return grid;
 	}
-
+	 
 	@Override
 	public long getElapsedTimeSeconds() {
 		return elapsedTimeSeconds;
 	}
+	 
 }
