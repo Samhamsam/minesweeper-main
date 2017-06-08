@@ -30,24 +30,32 @@ public class AkkaController extends Controller implements IAkkaController {
 	}
 
 	@Override
-	public String jsonObj() {
+	public List<JsonObject> jsonObj() {
+		// better to get every one as json object
 		JsonObject jsonObjectGrid = null;
+		JsonObject jsonObjectState = null;
+		JsonObject jsonObjectPoint = null;
 		JsonObject jsonObjectCell = null;
 
 		List<JsonObject> all = new ArrayList<>();
 
-		jsonObjectGrid = Json.createObjectBuilder().add("State", c.getState().toString()).add("Points", "")
+		jsonObjectState = Json.createObjectBuilder().add("State", c.getState().toString()).build(); // or .add() 
+				
+		jsonObjectPoint =  Json.createObjectBuilder().add("Points", "").build();
 
-				.add("Grid",
+		jsonObjectGrid  = Json.createObjectBuilder().add("Grid",
 						Json.createObjectBuilder().add("numberOfRows", c.getGrid().getNumberOfRows())
 								.add("numberOfColumns", c.getGrid().getNumberOfColumns())
 								.add("numberOfMines", c.getGrid().getNumberOfMines()))
 				.build();
+		all.add(jsonObjectState);
+		all.add(jsonObjectPoint);
 		all.add(jsonObjectGrid);
+		
 		for (Cell cell : c.getGrid().getCells()) {
 
 			jsonObjectCell = Json.createObjectBuilder()
-					.add("Cells", Json.createObjectBuilder()
+					.add("Cell", Json.createObjectBuilder()
 							.add("position",
 									Json.createObjectBuilder().add("row", cell.getPosition().getRow()).add("col",
 											cell.getPosition().getCol()))
@@ -55,19 +63,15 @@ public class AkkaController extends Controller implements IAkkaController {
 							.add("isRevealed", cell.isRevealed()).add("surroundingMines", cell.getSurroundingMines()))
 
 					.build();
-
+		
 			all.add(jsonObjectCell);
 		}
-
-		return prettyJSON(all.toString());
+	
+		
+		
+		return  all;
 	}
 
-	private static String prettyJSON(String resp) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		JsonParser jp = new JsonParser();
-		JsonElement je = jp.parse(resp);
-
-		return gson.toJson(je);
-	}
+	
 
 }
