@@ -24,6 +24,9 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	JMenu menuQuestion;
 	JMenuItem newGame;
 	JMenuItem quit, settingsmenu, help;
+	 
+	JMenu db;
+	JMenuItem loadtest;
 
 	public GUI(IAkkaController controller) {
 		this.controller = controller;
@@ -36,21 +39,28 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		menuBar = new JMenuBar();
 		menu = new JMenu("Menu");
 		menuQuestion = new JMenu("?");
+		db = new JMenu("DB");
 		menuBar.add(menu);
 		menuBar.add(menuQuestion);
+		menuBar.add(db);
 		newGame = new JMenuItem("New Game");
-		quit = new JMenuItem("Quit");
+ 		quit = new JMenuItem("Quit");
 		help = new JMenuItem("Help");
+
+		loadtest = new JMenuItem("load from DB");
 		settingsmenu = new JMenuItem("Settings");
 		menu.add(newGame);
-		menu.add(settingsmenu);
+ 		menu.add(settingsmenu);
 		menu.add(quit);
+
 		menuQuestion.add(help);
+		db.add(loadtest);
 
 		newGame.addActionListener(this);
-		quit.addActionListener(this);
+ 		quit.addActionListener(this);
 		help.addActionListener(this);
 		settingsmenu.addActionListener(this);
+		loadtest.addActionListener(this);
 
 		mainFrame.setJMenuBar(menuBar);
 
@@ -138,6 +148,8 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 
 		if (e.getSource() == newGame) {
 			controller.startNewGame();
+		} else if (e.getSource() == loadtest) {
+			controller.loadDB();
 		} else if (e.getSource() == quit) {
 			controller.quit();
 		} else if (e.getSource() == help) {
@@ -181,6 +193,10 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 			break;
 
 		case CHANGE_SETTINGS_SUCCESS:
+			break;
+		case LOAD_GAME:
+
+			setEnableButtons(true);
 			break;
 		}
 		if (controller.getState() != IController.State.GAME_LOST)
