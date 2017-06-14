@@ -51,6 +51,10 @@ jar {
                 it.isDirectory() ? it : zipTree(it)
             }
         }
+     from "src/log4j2.xml"
+  	 from "src/hibernate.cfg.xml"
+     into ("/docker")  
+   
     manifest {
         attributes 'Main-Class': 'de.htwg.se.minesweeper.Minesweeper'
         attributes 'Implementation-Title': 'Minesweeper', 'Implementation-Version': '0.1'
