@@ -6,14 +6,12 @@ import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Cell.Position;
 import de.htwg.se.minesweeper.model.Grid;
- import de.htwg.se.minesweeper.persistence.IGridDao;
+import de.htwg.se.minesweeper.persistence.IGridDao;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import com.google.inject.Inject;
 
- 
- 
 /**
  * @author Niels Boecker
  * @author Mark Unger
@@ -30,11 +28,10 @@ public class Controller extends Observable implements IController {
 	// for time measuring
 	private long timeOfGameStartMills;
 	private long elapsedTimeSeconds;
- 	private IGridDao dao;
+	private IGridDao dao;
 
- 
 	public Controller(IGridDao dao) throws IOException {
-	 
+
 		this.dao = dao;
 		startNewGame();
 
@@ -85,9 +82,9 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
-		
+
 			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-			//this.grid = loadDB();
+			// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
@@ -96,17 +93,22 @@ public class Controller extends Observable implements IController {
 		}
 	}
 
-	private Grid loadDB() {
+	@Override
+	public void loadDB() {
+		try {
+			List<Grid> allGrids = dao.getAllGrids();
 
-		List<Grid> allGrids = dao.getAllGrids();
-		for (Grid grid : allGrids) {
-			System.out.println(grid.getId());
-			System.out.println("------------------- " + allGrids.size());
+			for (Grid grid : allGrids) {
 
-			return dao.getGridById(grid.getId());
+				this.grid = dao.getGridById(grid.getId());
 
+			}
+			this.state = State.LOAD_GAME;
+		} catch (Exception e) {
+			state = State.ERROR;
+		} finally {
+			notifyObservers();
 		}
-		return null;
 
 	}
 
@@ -244,17 +246,17 @@ public class Controller extends Observable implements IController {
 		return "(TUI:n) GUI: Menu	->	New Game: 	This command starts a new game. (reset)\n"
 				+ "(TUI:q) GUI: Menu	->	Quit:		This command ends the Game and close it\n"
 				+ "(TUI:c) GUI: Menu	->	Settings:	This command sets the number for column/row and mines\n"
-				+ "(TUI:h) GUI: ?	    ->	Help:		This command shows the help text";
+				+ "(TUI:h) GUI: ?	        ->	Help:		This command shows the help text";
 	}
 
 	@Override
 	public Grid getGrid() {
 		return grid;
 	}
-	 
+
 	@Override
 	public long getElapsedTimeSeconds() {
 		return elapsedTimeSeconds;
 	}
-	 
+
 }

@@ -33,7 +33,7 @@ dependencies {
     compile 'com.typesafe.akka:akka-http-core_2.11:10.0.6'
     compile group: 'org.glassfish', name: 'javax.json', version: '1.1'
     
-  	
+  	compile "com.j2html:j2html:1.0.0"
         
     compile group: 'org.ektorp', name: 'org.ektorp', version: '1.4.4'
  	compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
@@ -51,6 +51,10 @@ jar {
                 it.isDirectory() ? it : zipTree(it)
             }
         }
+     from "src/log4j2.xml"
+  	 from "src/hibernate.cfg.xml"
+     into ("/docker")  
+   
     manifest {
         attributes 'Main-Class': 'de.htwg.se.minesweeper.Minesweeper'
         attributes 'Implementation-Title': 'Minesweeper', 'Implementation-Version': '0.1'
