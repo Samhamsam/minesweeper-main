@@ -42,6 +42,8 @@ dependencies {
         
     compile group: 'org.ektorp', name: 'org.ektorp', version: '1.4.4'
  	compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
+  // https://mvnrepository.com/artifact/com.google.inject.extensions/guice-multibindings
+	compile group: 'com.google.inject.extensions', name: 'guice-multibindings', version: '3.0'
   
 }
 
