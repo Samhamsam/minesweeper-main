@@ -1,21 +1,26 @@
-repositories {
-    mavenCentral()
-    jcenter()
+ 
+ 
+ buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    } 
+  }
+  dependencies {
+    classpath "com.github.jengelman.gradle.plugins:shadow:2.0.0"
+  }
 }
 
+apply plugin: "com.github.johnrengelman.shadow"
+  
 apply plugin: "java"
-apply plugin: "idea"
 apply plugin: "eclipse"
 apply plugin: "maven"
 apply plugin: "jacoco"
 
-idea {
-    project {
-        //if you want to set specific jdk and language level
-        jdkName = '1.8'
-        languageLevel = '1.8'
-    }
-}
+ repositories {
+    	mavenCentral()
+	}
 
 dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api',  version: '2.7'
@@ -44,10 +49,17 @@ sourceSets {
     main.java.srcDir "src"
     test.java.srcDir "test"
 }
-
+shadowJar {
+  transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
+    resource = 'reference.conf'
+  }
+}
 jar {
     from {
             (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+            (configurations.compile).collect {
                 it.isDirectory() ? it : zipTree(it)
             }
         }
