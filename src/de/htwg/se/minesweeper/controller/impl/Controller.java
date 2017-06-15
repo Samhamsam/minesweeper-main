@@ -10,7 +10,6 @@ import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
 
- 
 /**
  * @author Niels Boecker
  * @author Mark Unger
@@ -29,22 +28,28 @@ public class Controller extends Observable implements IController {
 	private long elapsedTimeSeconds;
 	private IGridDao dao;
 	private Set<IGridDao> allOfThem;
-  
+
 	public Controller(Set<IGridDao> allOfThem) throws IOException {
-//	 	List<IGridDao> list = new ArrayList<IGridDao>(allOfThem);
-//		 for (int i = 0; i < list.size(); i++) {
-//			this.dao = list.get(i); // 0 hibernate, 1 couchDB, 2 DB4O
-// 		}
-		 
-		for (IGridDao iGridDao : allOfThem) {
-			this.dao = iGridDao;
-		}
-		
+		//default DB4O
+		this.allOfThem = allOfThem;
+		this.dao = chooseDB(2);
+
 		startNewGame();
 
 	}
-
-	 
+	@Override
+	public IGridDao chooseDB(int db) {
+		List<IGridDao> list = new ArrayList<IGridDao>(allOfThem);
+		try {
+			this.dao = list.get(db);
+ 		} catch (Exception e) {
+			state = State.ERROR;
+		} finally {
+			notifyObservers();
+		}
+		System.out.println(list.get(db));
+		return this.dao  ;
+	}
 
 	@Override
 	public void quit() {
@@ -103,7 +108,7 @@ public class Controller extends Observable implements IController {
 	}
 
 	@Override
-	public void loadDB() {
+	public void loadFromDB() {
 		try {
 			List<Grid> allGrids = dao.getAllGrids();
 
@@ -122,6 +127,20 @@ public class Controller extends Observable implements IController {
 	}
 
 	@Override
+	public void saveToDB() {
+		try {
+
+			dao.saveOrUpdateGrid(this.grid);
+
+			this.state = State.LOAD_GAME;
+		} catch (Exception e) {
+			state = State.ERROR;
+		} finally {
+			notifyObservers();
+		}
+	}
+
+	@Override
 	public void commitNewSettingsAndRestart(int numberOfRowsAndCols, int numberOfMines) {
 		startNewGame(numberOfRowsAndCols, numberOfMines);
 		state = State.CHANGE_SETTINGS_SUCCESS;
@@ -131,8 +150,6 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void revealCell(int row, int col) {
 		revealCell(this.grid.getCellAt(row, col));
-
-		dao.saveOrUpdateGrid(this.grid);
 
 	}
 

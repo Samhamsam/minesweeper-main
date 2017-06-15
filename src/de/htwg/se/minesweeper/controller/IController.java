@@ -3,6 +3,7 @@ package de.htwg.se.minesweeper.controller;
 import de.htwg.se.minesweeper.designpattern.observer.IObservable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
+import de.htwg.se.minesweeper.persistence.IGridDao;
 
 /**
  * @author Niels Boecker
@@ -49,7 +50,11 @@ public interface IController extends IObservable {
 		NEW_GAME, INFO_TEXT, REVEAL_CELL, TOGGLE_FLAG, HELP_TEXT, GAME_WON, GAME_LOST, ERROR, CHANGE_SETTINGS_ACTIVATED, CHANGE_SETTINGS_SUCCESS, LOAD_GAME
 	}
 
-	void loadDB();
+	void loadFromDB();
+
+	void saveToDB();
+
+	IGridDao chooseDB(int db);
 
 	 
 
