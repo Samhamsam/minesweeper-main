@@ -26,8 +26,12 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	JMenuItem quit, settingsmenu, help;
 	 
 	JMenu db;
-	JMenuItem loadtest;
-
+	JMenu selectDB;
+	JMenuItem loadToDB;
+	JMenuItem saveToDB;
+	JMenuItem couchDB;
+	JMenuItem hibernate;
+	
 	public GUI(IAkkaController controller) {
 		this.controller = controller;
 		controller.addObserver(this);
@@ -40,28 +44,37 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		menu = new JMenu("Menu");
 		menuQuestion = new JMenu("?");
 		db = new JMenu("DB");
+		selectDB = new JMenu("SelectDB");
 		menuBar.add(menu);
 		menuBar.add(menuQuestion);
 		menuBar.add(db);
+		menuBar.add(selectDB);
 		newGame = new JMenuItem("New Game");
  		quit = new JMenuItem("Quit");
 		help = new JMenuItem("Help");
 
-		loadtest = new JMenuItem("load from DB");
+		loadToDB = new JMenuItem("load from DB");
+		saveToDB = new JMenuItem("Save to DB");
+		couchDB = new JMenuItem("use CouchDB");
+		hibernate = new JMenuItem("use hibernate");
 		settingsmenu = new JMenuItem("Settings");
 		menu.add(newGame);
  		menu.add(settingsmenu);
 		menu.add(quit);
 
 		menuQuestion.add(help);
-		db.add(loadtest);
-
+		db.add(loadToDB);
+		db.add(saveToDB);
+		selectDB.add(couchDB);
+		selectDB.add(hibernate);
 		newGame.addActionListener(this);
  		quit.addActionListener(this);
 		help.addActionListener(this);
 		settingsmenu.addActionListener(this);
-		loadtest.addActionListener(this);
-
+		loadToDB.addActionListener(this);
+		saveToDB.addActionListener(this);
+		couchDB.addActionListener(this);
+		hibernate.addActionListener(this);
 		mainFrame.setJMenuBar(menuBar);
 
 		mainFrame.setLayout(
@@ -148,9 +161,21 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 
 		if (e.getSource() == newGame) {
 			controller.startNewGame();
-		} else if (e.getSource() == loadtest) {
-			controller.loadDB();
-		} else if (e.getSource() == quit) {
+		} else if (e.getSource() == loadToDB) {
+			controller.loadFromDB();
+		}  else if (e.getSource() == saveToDB) {
+			controller.saveToDB();
+		}
+		 else if (e.getSource() == couchDB) {
+				controller.chooseDB(0);
+			}
+		 
+		 
+		 else if (e.getSource() == hibernate) {
+				controller.chooseDB(1);
+			}
+		 
+		 else if (e.getSource() == quit) {
 			controller.quit();
 		} else if (e.getSource() == help) {
 			controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);

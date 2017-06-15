@@ -3,6 +3,7 @@ package de.htwg.se.minesweeper.controller.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -22,10 +23,10 @@ import de.htwg.se.minesweeper.persistence.IGridDao;
 public class AkkaController extends Controller implements IAkkaController {
 
 	IAkkaController c;
-
+	private Set<IGridDao> allOfThem;
 	@Inject
-	public AkkaController(IGridDao dao, IAkkaController c) throws IOException {
-		super(dao);
+	public AkkaController(Set<IGridDao> allOfThem, IAkkaController c) throws IOException {
+		super(allOfThem);
 		this.c = c;
 	}
 

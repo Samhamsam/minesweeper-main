@@ -1,16 +1,14 @@
 package de.htwg.se.minesweeper.controller.impl;
 
-import de.htwg.se.minesweeper.aview.AkkaHTTP;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
-import de.htwg.se.minesweeper.model.Cell.Position;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import com.google.inject.Inject;
 
 /**
  * @author Niels Boecker
@@ -29,12 +27,28 @@ public class Controller extends Observable implements IController {
 	private long timeOfGameStartMills;
 	private long elapsedTimeSeconds;
 	private IGridDao dao;
+	private Set<IGridDao> allOfThem;
 
-	public Controller(IGridDao dao) throws IOException {
+	public Controller(Set<IGridDao> allOfThem) throws IOException {
+		//default DB4O
+		this.allOfThem = allOfThem;
+		this.dao = chooseDB(2);
 
-		this.dao = dao;
 		startNewGame();
 
+	}
+	@Override
+	public IGridDao chooseDB(int db) {
+		List<IGridDao> list = new ArrayList<IGridDao>(allOfThem);
+		try {
+			this.dao = list.get(db);
+ 		} catch (Exception e) {
+			state = State.ERROR;
+		} finally {
+			notifyObservers();
+		}
+		System.out.println(list.get(db));
+		return this.dao  ;
 	}
 
 	@Override
@@ -94,7 +108,7 @@ public class Controller extends Observable implements IController {
 	}
 
 	@Override
-	public void loadDB() {
+	public void loadFromDB() {
 		try {
 			List<Grid> allGrids = dao.getAllGrids();
 
@@ -113,6 +127,20 @@ public class Controller extends Observable implements IController {
 	}
 
 	@Override
+	public void saveToDB() {
+		try {
+
+			dao.saveOrUpdateGrid(this.grid);
+
+			this.state = State.LOAD_GAME;
+		} catch (Exception e) {
+			state = State.ERROR;
+		} finally {
+			notifyObservers();
+		}
+	}
+
+	@Override
 	public void commitNewSettingsAndRestart(int numberOfRowsAndCols, int numberOfMines) {
 		startNewGame(numberOfRowsAndCols, numberOfMines);
 		state = State.CHANGE_SETTINGS_SUCCESS;
@@ -122,8 +150,6 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void revealCell(int row, int col) {
 		revealCell(this.grid.getCellAt(row, col));
-
-		dao.saveOrUpdateGrid(this.grid);
 
 	}
 
