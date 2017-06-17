@@ -1,6 +1,5 @@
 package de.htwg.se.minesweeper.controller;
 
-import de.htwg.se.minesweeper.designpattern.observer.IObservable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
@@ -10,7 +9,7 @@ import de.htwg.se.minesweeper.persistence.IGridDao;
  * @author Mark Unger
  * @author Aiham Abousaleh
  */
-public interface IController extends IObservable {
+public interface IController {
 
 	void quit();
 

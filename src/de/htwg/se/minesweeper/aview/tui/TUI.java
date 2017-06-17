@@ -2,17 +2,24 @@ package de.htwg.se.minesweeper.aview.tui;
 
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
 import de.htwg.se.minesweeper.designpattern.observer.Event;
 import de.htwg.se.minesweeper.designpattern.observer.IObserver;
 import de.htwg.se.minesweeper.model.Cell;
+import scala.util.control.Exception.Finally;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static de.htwg.se.minesweeper.controller.IController.State.*;
 
@@ -27,11 +34,18 @@ public class TUI extends AbstractActor implements IObserver {
 
 	private String lastUserInput = "";
 
-	private IAkkaController controller;
-
-	public TUI(IAkkaController controller) {
+	//private IAkkaController controller;
+	ActorRef controller;
+	
+	public TUI(final ActorRef controller) {
 		this.controller = controller;
-		controller.addObserver(this);
+	}
+	
+	
+	@Override
+	public Receive createReceive() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public boolean processInput(String input) {
@@ -80,22 +94,26 @@ public class TUI extends AbstractActor implements IObserver {
 	}
 
 	private boolean runQuitCommand() {
-		controller.quit();
+		//controller.quit();
+		controller.tell("ende", self());
 		return false; // quit loop in main program
 	}
 
 	private void showHelpAction() {
-		controller.setStateAndNotifyObservers(HELP_TEXT);
+		controller.tell("showHelpText", self());
+		//controller.setStateAndNotifyObservers(HELP_TEXT);
 	}
 
 	private void newGameAction() {
-		controller.startNewGame();
+		//controller.startNewGame();
+		controller.tell("start", self());
 	}
 
 	private void playRoundAction(List<String> inputParts) {
 
-		controller.setStateAndNotifyObservers(INFO_TEXT);
-
+		//controller.setStateAndNotifyObservers(INFO_TEXT);
+		controller.tell(INFO_TEXT, self());
+		
 		if (inputParts.size() == 2) {
 			revealCell(inputParts);
 		} else if (inputParts.size() == 3) {
@@ -109,9 +127,12 @@ public class TUI extends AbstractActor implements IObserver {
 		try {
 			int row = Integer.parseInt(answerAsList.get(1));
 			int col = Integer.parseInt(answerAsList.get(2));
-			controller.toggleFlag(row, col);
+
+			//controller.toggleFlag(row, col);
+			controller.tell(new SetFlagRequest(col, row), self());
 		} catch (Exception e) {
-			controller.setStateAndNotifyObservers(ERROR);
+			//controller.setStateAndNotifyObservers(ERROR);
+			controller.tell(ERROR, self());
 			LOGGER.error(e);
 		}
 	}
@@ -120,8 +141,8 @@ public class TUI extends AbstractActor implements IObserver {
 
 		int row = Integer.parseInt(answerAsList.get(0));
 		int col = Integer.parseInt(answerAsList.get(1));
-
-		controller.revealCell(row, col);
+		
+		controller.tell(new RevealCellRequest(col, row),self());//revealCell(row, col);
 	}
 
 	private void runSettingsAction(List<String> list) {
@@ -129,7 +150,9 @@ public class TUI extends AbstractActor implements IObserver {
 		try {
 			int numRowsAndColumns = Integer.parseInt(list.get(1));
 			int numberOfMines = Integer.parseInt(list.get(2));
-			controller.commitNewSettingsAndRestart(numRowsAndColumns, numberOfMines);
+			//controller.commitNewSettingsAndRestart(numRowsAndColumns, numberOfMines);
+			controller.tell(new NewSettingRequest(numRowsAndColumns,numberOfMines), self());
+		
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
@@ -255,10 +278,5 @@ public class TUI extends AbstractActor implements IObserver {
 		return result.toString();
 	}
 
-	@Override
-	public Receive createReceive() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

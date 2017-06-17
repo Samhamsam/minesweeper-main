@@ -14,24 +14,32 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import akka.actor.AbstractActor;
+import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 
  
 
 public final class MinesweeperActorStart extends AbstractActor {
+	boolean loop = true;
+	LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 	
 	@Override
 	public void preStart() {
 		ActorRef controller = getContext().actorOf(Props.create(Controller.class),"controller");
-		ActorRef tui = getContext().actorOf(Props.create(TUI.class),"tui");
-		ActorRef gui = getContext().actorOf(Props.create(GUI.class),"gui");
+		ActorRef tui = getContext().actorOf(Props.create(TUI.class,controller),"tui");
+		//ActorRef gui = getContext().actorOf(Props.create(GUI.class),"gui");
 		
-		boolean loop = true;
+		
 		scanner = new Scanner(System.in);
-
+		controller.tell("start", self());
+		log.info("starting Game");
+		
 		while (loop) {
-			loop = game.getTUI().processInput(scanner.next());
+			//loop = game.getTUI().processInput(scanner.next());
+			tui.tell(scanner.next(), self());
 		}
 	}
 	// test push
@@ -84,8 +92,8 @@ public final class MinesweeperActorStart extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.matchAny(s->{
-
+				.matchEquals("ende" , s->{
+					loop = false;
 				})
 				.build();
 	}

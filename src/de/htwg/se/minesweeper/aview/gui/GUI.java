@@ -34,7 +34,6 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	
 	public GUI(IAkkaController controller) {
 		this.controller = controller;
-		controller.addObserver(this);
 		mainFrame = new JFrame("Minesweeper");
 		initJFrame();
 	}

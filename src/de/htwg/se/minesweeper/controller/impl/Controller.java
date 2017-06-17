@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import akka.actor.AbstractActor;
 import de.htwg.se.minesweeper.controller.IController;
-import de.htwg.se.minesweeper.designpattern.observer.Observable;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
@@ -15,8 +15,8 @@ import de.htwg.se.minesweeper.persistence.IGridDao;
  * @author Mark Unger
  * @author Aiham Abousaleh
  */
-public class Controller extends Observable implements IController {
-
+public class Controller extends AbstractActor implements IController {
+	
 	private static final String DEFAULT_DIFFICULTY = "intermediate";
 	private static final String DEFAULT_SIZE = "small";
 	private Grid grid;
@@ -29,14 +29,26 @@ public class Controller extends Observable implements IController {
 	private IGridDao dao;
 	private Set<IGridDao> allOfThem;
 
-	public Controller(Set<IGridDao> allOfThem) throws IOException {
+/*	public Controller(Set<IGridDao> allOfThem) throws IOException {
 		//default DB4O
 		this.allOfThem = allOfThem;
 		this.dao = chooseDB(2);
 
 		startNewGame();
 
+	}*/
+	
+	@Override
+	public Receive createReceive() {
+		return receiveBuilder()
+				.matchEquals("start" , s->{
+					this.allOfThem = allOfThem;
+					this.dao = chooseDB(2);
+					startNewGame();
+				})
+				.build();
 	}
+	
 	@Override
 	public IGridDao chooseDB(int db) {
 		List<IGridDao> list = new ArrayList<IGridDao>(allOfThem);
@@ -45,7 +57,7 @@ public class Controller extends Observable implements IController {
  		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
-			notifyObservers();
+			//notifyObservers();
 		}
 		System.out.println(list.get(db));
 		return this.dao  ;
@@ -101,7 +113,7 @@ public class Controller extends Observable implements IController {
 			// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
-			notifyObservers();
+			//notifyObservers();
 		} catch (Exception e) {
 			state = State.ERROR;
 		}
@@ -121,7 +133,7 @@ public class Controller extends Observable implements IController {
 		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
-			notifyObservers();
+			//notifyObservers();
 		}
 
 	}
@@ -136,7 +148,7 @@ public class Controller extends Observable implements IController {
 		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
-			notifyObservers();
+			//notifyObservers();
 		}
 	}
 
@@ -144,7 +156,7 @@ public class Controller extends Observable implements IController {
 	public void commitNewSettingsAndRestart(int numberOfRowsAndCols, int numberOfMines) {
 		startNewGame(numberOfRowsAndCols, numberOfMines);
 		state = State.CHANGE_SETTINGS_SUCCESS;
-		notifyObservers();
+		//notifyObservers();
 	}
 
 	@Override
@@ -165,7 +177,7 @@ public class Controller extends Observable implements IController {
 		recursiveRevealCell(cell);
 
 		// notify observers only once
-		notifyObservers();
+		//notifyObservers();
 
 	}
 
@@ -250,8 +262,9 @@ public class Controller extends Observable implements IController {
 	 */
 	@Override
 	public void touch() {
-		if (this.grid != null)
-			notifyObservers();
+		if (this.grid != null){
+			//notifyObservers();
+		}
 		else
 			startNewGame();
 	}
@@ -259,7 +272,7 @@ public class Controller extends Observable implements IController {
 	@Override
 	public void setStateAndNotifyObservers(State state) {
 		this.state = state;
-		notifyObservers();
+		//notifyObservers();
 	}
 
 	@Override
@@ -284,5 +297,7 @@ public class Controller extends Observable implements IController {
 	public long getElapsedTimeSeconds() {
 		return elapsedTimeSeconds;
 	}
+	
+
 
 }
