@@ -9,12 +9,14 @@ import de.htwg.se.minesweeper.model.Cell;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import akka.actor.AbstractActor;
+
 import java.util.Arrays;
 import java.util.List;
 
 import static de.htwg.se.minesweeper.controller.IController.State.*;
 
-public class TUI implements IObserver {
+public class TUI extends AbstractActor implements IObserver {
 
 	private static final Logger LOGGER = LogManager.getRootLogger(); // LogManager.getLogger();
 
@@ -251,6 +253,12 @@ public class TUI implements IObserver {
 		}
 
 		return result.toString();
+	}
+
+	@Override
+	public Receive createReceive() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

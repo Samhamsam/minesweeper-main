@@ -1,88 +1,26 @@
 package de.htwg.se.minesweeper;
 
-import de.htwg.se.minesweeper.aview.AkkaHTTP;
-import de.htwg.se.minesweeper.aview.gui.GUI;
-import de.htwg.se.minesweeper.aview.tui.TUI;
-import de.htwg.se.minesweeper.controller.IAkkaController;
-import de.htwg.se.minesweeper.controller.impl.AkkaController;
-
 import java.io.IOException;
-import java.util.Scanner;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import akka.actor.*;
 
-import akka.actor.AbstractActor;
-import akka.actor.Props;
-
- 
-
-public final class Minesweeper extends AbstractActor{
-	// test push
-	private static Scanner scanner;
-	private TUI tui;
- 	protected IAkkaController controller;
-	private static Minesweeper instance = null;
-	private static AkkaHTTP akkaHTTP;
-	
-	private Minesweeper() throws IOException {
-		 Injector inject = Guice.createInjector(new MinesweeperModule());
-		 controller = inject.getInstance(IAkkaController.class);
- 	//	controller = new Controller();
-		 
-		tui = new TUI(controller);
-		 new GUI(controller);
-		 if (controller instanceof IAkkaController) {
-			 akkaHTTP = new AkkaHTTP(controller);
-			}
-		tui.printTUI();
-	}
-
-	public static Minesweeper getInstance() throws IOException {
-		if (instance == null) {
-			instance = new Minesweeper();
-		}
-		return instance;
-	}
-
-	public TUI getTUI() {
-		return tui;
-	}
-
-	public IAkkaController getController() {
-		return controller;
-	}
-
-/*	public static void main(final String[] args) throws IOException {
-
-		Minesweeper game = Minesweeper.getInstance();
-
-		boolean loop = true;
-		scanner = new Scanner(System.in);
-
-		while (loop) {
-			loop = game.getTUI().processInput(scanner.next());
-		}
-	}*/
+public class Minesweeper extends AbstractActor{
+	// Akka actor system
+	ActorSystem system = ActorSystem.create("minesweeper");
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder()
-				.matchAny(s->{
-					Minesweeper game = Minesweeper.getInstance();
-
-					boolean loop = true;
-					scanner = new Scanner(System.in);
-
-					while (loop) {
-						loop = game.getTUI().processInput(scanner.next());
-					}
-				})
-				.build();
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
-	static Props props(){
-		return Props.create(Minesweeper.class);
+	public static void main(final String[] args) throws IOException {
+		ActorSystem system = ActorSystem.create("testsystem");
+		final ActorRef mainActor = system.actorOf(MinesweeperActorStart.props(), "mainActor");
+		mainActor.tell("start", mainActor);
+		
 	}
-
+	
+	
 }
+
