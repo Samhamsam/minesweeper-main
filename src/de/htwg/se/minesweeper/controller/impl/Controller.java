@@ -6,6 +6,11 @@ import java.util.concurrent.TimeUnit;
 
 import akka.actor.AbstractActor;
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.ShowHelpTextRequest;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
@@ -41,10 +46,33 @@ public class Controller extends AbstractActor implements IController {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.matchEquals("start" , s->{
-					this.allOfThem = allOfThem;
-					this.dao = chooseDB(2);
+				.matchEquals("printTUIRequest" , s->{
+					getSender().tell(new PrintTUIRequest(getState(), getElapsedTimeSeconds(), 
+							getHelpText(),getGrid().getNumberOfMines(),getGrid().getNumberOfRows(),getGrid().getCells()), self());
+				})
+				.matchEquals("ende", s->{
+					quit();
+				})
+				.matchEquals("start", s->{
 					startNewGame();
+				})
+				.matchEquals("showHelpText", s->{
+					getSender().tell(new ShowHelpTextRequest(getHelpText()), self());
+				})
+				.matchEquals("infoText", s->{
+					this.state = State.INFO_TEXT;
+				})
+				.matchEquals("error", s->{
+					this.state = State.ERROR;
+				})
+				.match(SetFlagRequest.class, s->{
+					toggleFlag(s.row, s.col);
+				})
+				.match(RevealCellRequest.class, s->{
+					revealCell(s.row,s.col);
+				})
+				.match(NewSettingRequest.class, s->{
+					commitNewSettingsAndRestart(s.numRowsAndColumns, s.numberOfMines);;
 				})
 				.build();
 	}

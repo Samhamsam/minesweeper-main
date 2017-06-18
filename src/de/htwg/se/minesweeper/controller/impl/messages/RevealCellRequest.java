@@ -1,8 +1,8 @@
 package de.htwg.se.minesweeper.controller.impl.messages;
 
 public class RevealCellRequest {
-	int col;
-	int row;
+	public int col;
+	public int row;
 	
 
 	public RevealCellRequest(int col, int row)  

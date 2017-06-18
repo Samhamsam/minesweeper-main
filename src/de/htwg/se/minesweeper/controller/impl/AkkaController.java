@@ -26,7 +26,7 @@ public class AkkaController extends Controller implements IAkkaController {
 	private Set<IGridDao> allOfThem;
 	@Inject
 	public AkkaController(Set<IGridDao> allOfThem, IAkkaController c) throws IOException {
-		super(allOfThem);
+		//super(allOfThem);
 		this.c = c;
 	}
 

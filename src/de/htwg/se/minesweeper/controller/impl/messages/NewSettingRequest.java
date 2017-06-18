@@ -1,8 +1,8 @@
 package de.htwg.se.minesweeper.controller.impl.messages;
 
 public class NewSettingRequest {
-	int numRowsAndColumns;
-	int numberOfMines;
+	public int numRowsAndColumns;
+	public int numberOfMines;
 	
 
 	public NewSettingRequest(int numRowsAndColumns, int numberOfMines)  

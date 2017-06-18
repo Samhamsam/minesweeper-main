@@ -3,23 +3,23 @@ package de.htwg.se.minesweeper.aview.tui;
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.ShowHelpTextRequest;
 import de.htwg.se.minesweeper.designpattern.observer.Event;
 import de.htwg.se.minesweeper.designpattern.observer.IObserver;
-import de.htwg.se.minesweeper.model.Cell;
-import scala.util.control.Exception.Finally;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.stream.impl.fusing.Log;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 import static de.htwg.se.minesweeper.controller.IController.State.*;
 
@@ -36,6 +36,7 @@ public class TUI extends AbstractActor implements IObserver {
 
 	//private IAkkaController controller;
 	ActorRef controller;
+	ActorRef tuiRef;
 	
 	public TUI(final ActorRef controller) {
 		this.controller = controller;
@@ -44,8 +45,17 @@ public class TUI extends AbstractActor implements IObserver {
 	
 	@Override
 	public Receive createReceive() {
-		// TODO Auto-generated method stub
-		return null;
+		return receiveBuilder()
+				.match(PrintTUIRequest.class , s->{
+					printTUIImpl(s);
+				})
+				.match(ShowHelpTextRequest.class , s->{
+					LOGGER.info(s.helpText);;
+				})
+				.build();
+		
+		
+
 	}
 
 	public boolean processInput(String input) {
@@ -112,7 +122,7 @@ public class TUI extends AbstractActor implements IObserver {
 	private void playRoundAction(List<String> inputParts) {
 
 		//controller.setStateAndNotifyObservers(INFO_TEXT);
-		controller.tell(INFO_TEXT, self());
+		controller.tell("infoText", self());
 		
 		if (inputParts.size() == 2) {
 			revealCell(inputParts);
@@ -132,7 +142,7 @@ public class TUI extends AbstractActor implements IObserver {
 			controller.tell(new SetFlagRequest(col, row), self());
 		} catch (Exception e) {
 			//controller.setStateAndNotifyObservers(ERROR);
-			controller.tell(ERROR, self());
+			controller.tell("error", self());
 			LOGGER.error(e);
 		}
 	}
@@ -162,32 +172,27 @@ public class TUI extends AbstractActor implements IObserver {
 	public void update(Event e) {
 		printTUI();
 	}
+	
 
-	public String getGridAsString() {
-		StringBuilder result = new StringBuilder();
-		final List<Cell> allCells = controller.getGrid().getCells();
-		final int numberOfRows = controller.getGrid().getNumberOfRows();
-
-		for (int row = 0; row < numberOfRows; row++) {
-			final int currentRow = row; // to use it in Lambda expression
-			allCells.stream().filter(cell -> cell.getPosition().getRow() == currentRow)
-					.forEach(cell -> result.append(cell.toString()).append(" "));
-
-			result.append("\n");
-		}
-
-		return result.toString();
-	}
-
+	
+/*	public void getGridAsString() {
+		controller.tell("getGridAsString", self());
+	}*/
+	
 	public void printTUI() {
-		final IController.State state = controller.getState();
+		controller.tell("printTUIRequest", self());
+	}
+	
+	
+	public void printTUIImpl(PrintTUIRequest printTUIRequest){
+		final IController.State state = printTUIRequest.state;
 
 		if (state.equals(ERROR)) {
 			LOGGER.error("NOT A NUMBER!");
 			return;
 		}
 		// show this in every step? HELP_TEXT..
-		LOGGER.info(getGridAsString());
+		LOGGER.info(printTUIRequest.gridAsString);
 
 		if ("".equals(lastUserInput)) {
 			LOGGER.info("You typed: " + lastUserInput + "\n");
@@ -200,11 +205,11 @@ public class TUI extends AbstractActor implements IObserver {
 			break;
 
 		case GAME_WON:
-			LOGGER.info("You Won! " + controller.getElapsedTimeSeconds() + " Points!");
+			LOGGER.info("You Won! " + printTUIRequest.elapsedTimeSeconds + " Points!");
 			break;
 
 		case HELP_TEXT:
-			LOGGER.info(controller.getHelpText());
+			LOGGER.info(printTUIRequest.getHelpText);
 			break;
 
 		case CHANGE_SETTINGS_ACTIVATED:
@@ -212,8 +217,8 @@ public class TUI extends AbstractActor implements IObserver {
 			break;
 
 		case CHANGE_SETTINGS_SUCCESS:
-			LOGGER.info("You set row/column to: " + controller.getGrid().getNumberOfRows() + " and mines to: "
-					+ controller.getGrid().getNumberOfMines());
+			LOGGER.info("You set row/column to: " + printTUIRequest.numberOfRows + " and mines to: "
+					+ printTUIRequest.numberOfMines);
 			break;
 
 		case INFO_TEXT: // or status == 0, running? default?
@@ -228,14 +233,17 @@ public class TUI extends AbstractActor implements IObserver {
 		}
 	}
 
-	public String printTUIAsString() {
-		final IController.State state = controller.getState();
+	/*public String printTUIAsString() {
+		controller.tell("printTUIAsString", sender);
+	}
+	public String printTUIAsStringImpl(PrintTUIRequest printTUIRequest) {
+		final IController.State state = printTUIRequest.state;
 
 		if (state.equals(ERROR)) {
 			return "NOT A NUMBER!";
 		}
 
-		final StringBuilder result = new StringBuilder(getGridAsString());
+		final StringBuilder result = new StringBuilder(printTUIRequest.gridAsString);
 
 		if ("".equals(lastUserInput)) {
 			result.append("You typed: " + lastUserInput + "\n");
@@ -248,11 +256,11 @@ public class TUI extends AbstractActor implements IObserver {
 			break;
 
 		case GAME_WON:
-			result.append("You Won! " + controller.getElapsedTimeSeconds() + " Points!");
+			result.append("You Won! " + printTUIRequest.elapsedTimeSeconds + " Points!");
 			break;
 
 		case HELP_TEXT:
-			result.append(controller.getHelpText());
+			result.append(printTUIRequest.getHelpText);
 			break;
 
 		case CHANGE_SETTINGS_ACTIVATED:
@@ -260,8 +268,8 @@ public class TUI extends AbstractActor implements IObserver {
 			break;
 
 		case CHANGE_SETTINGS_SUCCESS:
-			result.append("You set row/column to: " + controller.getGrid().getNumberOfRows() + " and mines to: "
-					+ controller.getGrid().getNumberOfMines());
+			result.append("You set row/column to: " + printTUIRequest.numberOfRows + " and mines to: "
+					+ printTUIRequest.numberOfMines);
 			break;
 
 		case INFO_TEXT: // or status == 0, running? default?
@@ -276,7 +284,7 @@ public class TUI extends AbstractActor implements IObserver {
 		}
 
 		return result.toString();
-	}
+	}*/
 
 
 }
