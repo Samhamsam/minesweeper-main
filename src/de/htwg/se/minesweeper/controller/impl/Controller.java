@@ -9,8 +9,10 @@ import akka.routing.BroadcastGroup;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.impl.messages.GetCellAtRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.GetCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.GetGridRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.GuiUpdateRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.NumberOfRowsAndColumnsRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
@@ -36,7 +38,7 @@ public class Controller extends AbstractActor implements IController {
 	private long elapsedTimeSeconds;
 	private IGridDao dao;
 	private Set<IGridDao> allOfThem;
-
+	ActorRef notifyRef;
 /*	public Controller(Set<IGridDao> allOfThem) throws IOException {
 		//default DB4O
 		this.allOfThem = allOfThem;
@@ -48,9 +50,15 @@ public class Controller extends AbstractActor implements IController {
 
 	}*/
 	
-	List<String> paths = Arrays.asList("/user/mainActor/tui"/*,"/user/mainActor/gui"*/);
-	ActorRef notifyRef =
-			getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
+	public Controller() {		
+		startNewGame();
+		List<String> paths = Arrays.asList("/user/mainActor/tui","/user/mainActor/gui");
+		notifyRef =
+				getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
+		notifyRef.tell(new GetGridRequest(this.grid,State.NEW_GAME), self());
+	}
+	
+
 
 	@Override
 	public Receive createReceive() {
@@ -87,18 +95,24 @@ public class Controller extends AbstractActor implements IController {
 					String BB = "buildButtonRequest";
 					String UGF = "updateGameFieldRequest";
 					
-					Cell cell = getGrid().getCellAt(s.row, s.col);
+					String cellName = getGrid().getCellAt(s.row, s.col).toString();
 					
 					if(s.typeOfRequest.equals(BB)){
-						getSender().tell(new GetCellRequest(cell, s.row, s.col,BB), self());
+						getSender().tell(new GetCellRequest(cellName, s.row, s.col,BB), self());
 					} 
 					else if (s.typeOfRequest.equals(UGF)){
-						getSender().tell(new GetCellRequest(cell, s.row, s.col,UGF), self());
+						getSender().tell(new GetCellRequest(cellName, s.row, s.col,UGF), self());
 					}
 					
 				})
 				.matchEquals("updateGUI", s->{
 					getSender().tell(new GuiUpdateRequest(getHelpText(), getElapsedTimeSeconds(), getState()), self());
+				})
+				.matchEquals("startGUI", s->{
+					//System.out.println(this.getGrid().getNumberOfColumns());
+					getSender().tell(new NumberOfRowsAndColumnsRequest(getGrid().getNumberOfRows(),getGrid().getNumberOfColumns(),getGrid().getNumberOfMines()), self());
+					//getSender().tell(new GetGridRequest(this.getGrid()), self());
+					
 				})
 				.build();
 	}
@@ -137,7 +151,7 @@ public class Controller extends AbstractActor implements IController {
 			numberOfRowsAndCols = 17;
 			break;
 		case "small":
-			numberOfRowsAndCols = 7;
+			numberOfRowsAndCols = 10;
 			break;
 		case "medium":
 		default:
@@ -353,6 +367,7 @@ public class Controller extends AbstractActor implements IController {
 	}
 	
 	private void notifyObservers(){
+		notifyRef.tell(new GetGridRequest(this.grid,State.UPDATE), self());
 		notifyRef.tell("update", self());
 	}
 	

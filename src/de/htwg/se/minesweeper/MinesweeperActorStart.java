@@ -34,7 +34,7 @@ public final class MinesweeperActorStart extends AbstractActor {
 		getContext().actorOf(Props.create(GUI.class,controller),"gui");
 		
 		scanner = new Scanner(System.in);
-		controller.tell("start", self());
+		//controller.tell("start", self());
 		log.info("starting Game");
 		
 		while (loop) {

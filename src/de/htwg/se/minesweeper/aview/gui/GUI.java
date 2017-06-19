@@ -2,14 +2,18 @@ package de.htwg.se.minesweeper.aview.gui;
 
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.controller.IController.State;
 import de.htwg.se.minesweeper.controller.impl.messages.GetCellAtRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.GetCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.GetGridRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.GuiUpdateRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.NumberOfRowsAndColumnsRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
 import de.htwg.se.minesweeper.model.Cell;
+import de.htwg.se.minesweeper.model.Grid;
 
 import javax.swing.*;
 
@@ -21,11 +25,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.concurrent.TimeUnit;
 
 public class GUI extends AbstractActor implements ActionListener, MouseListener {
 	private JButton[][] gridAsJButtons;
 	//private IAkkaController controller;
-	private GUISettings guiSettings;
+	//private GUISettings guiSettings;
 
 	JFrame mainFrame;
 	JMenuBar menuBar;
@@ -40,12 +45,15 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	JMenuItem saveToDB;
 	JMenuItem couchDB;
 	JMenuItem hibernate;
-	Cell getCellAt;
+
+	Grid grid;
+
+	
 	ActorRef controller;
 	
 	private int numberOfRows;
 	private int numberOfColumns;
-	private int numberOfMines;
+	//private int numberOfMines;
 	
 	
 /*	public GUI(IAkkaController controller) {
@@ -58,41 +66,43 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 
 
 
-	public GUI(final ActorRef controller) {
+	public GUI(final ActorRef controller) throws InterruptedException {
+		setNumberOfRows(10);
+		setNumberOfColumns(10);
+		//setNumberOfMines(1);
 		this.controller = controller;
-		mainFrame = new JFrame("Minesweeper");
-		initJFrame();
+		//controller.tell("startGUI", getSelf());
+		
 	}
 	
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(GetCellRequest.class , s->{
-					String BB = "buildButtonRequest";
-					String UGF = "updateGameFieldRequest";
-
-					if(s.typeOfRequest.equals(BB)){
-						buildButtonHelper(s.row, s.col, s.cellAt);
-					} 
-					else if (s.typeOfRequest.equals(UGF)){
-						updateGameFieldHelper(s.row,s.col,s.cellAt);
-					}
-					
+				.match(NumberOfRowsAndColumnsRequest.class , s->{
+					setNumberOfRows(s.numberOfRows);
+					setNumberOfColumns(s.numberOfColumns);
+					//setNumberOfMines(s.numberOfMines);
 				})
 				.matchEquals("update", s->{
 					update();
 				})
-				.matchEquals("start", s->{
-					System.out.println("starting GUI");
-				})
 				.match(GuiUpdateRequest.class, s->{
 					updateImpl(s.state, s.time,s.helpText);
+				})
+				.match(GetGridRequest.class, s->{
+					this.grid = s.grid;
+					if(s.state == State.NEW_GAME){
+						mainFrame = new JFrame("Minesweeper");
+						initJFrame();
+					}
+
 				})
 				
 				.build();
 	}
 
-	private void initJFrame() {
+	private void initJFrame() throws InterruptedException {
+		
 		menuBar = new JMenuBar();
 		menu = new JMenu("Menu");
 		menuQuestion = new JMenu("?");
@@ -129,15 +139,21 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		couchDB.addActionListener(this);
 		hibernate.addActionListener(this);
 		mainFrame.setJMenuBar(menuBar);
+		buildGameField();
 
 		mainFrame.setLayout(
 				new GridLayout(getNumberOfRows(), getNumberOfColumns()));
-		buildGameField();
+		
+		//
 		mainFrame.setSize(30, 30);
+		
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.pack();
 		mainFrame.setLocationRelativeTo(null);
+		
 		mainFrame.setVisible(true);
+		
+		
 	}
 
 	private void buildGameField() {
@@ -147,45 +163,43 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	}
 	
 	private void buildButtonsImpl() {
+		
 		for (int row = 0; row < getNumberOfRows(); row++) {
 			for (int col = 0; col < getNumberOfColumns(); col++) {
-				controller.tell(new GetCellAtRequest(row,col,"buildButtonRequest"), self());
+				
+				//controller.tell(new GetCellAtRequest(row, col, "buildButtonRequest"), self());
+				gridAsJButtons[row][col] = new JButton();
+				mainFrame.add(gridAsJButtons[row][col]);
+				gridAsJButtons[row][col].setBackground(Color.GRAY);
+				gridAsJButtons[row][col].addMouseListener(this);
+				gridAsJButtons[row][col].setPreferredSize(new Dimension(50, 50));
 			}
 		}
 	}
-	
-	private void buildButtonHelper(int row, int col, Cell cell){
-		gridAsJButtons[row][col] = new JButton(cell.toString());
-		mainFrame.add(gridAsJButtons[row][col]);
-		gridAsJButtons[row][col].setBackground(Color.GRAY);
-		gridAsJButtons[row][col].addMouseListener(this);
-		gridAsJButtons[row][col].setPreferredSize(new Dimension(50, 50));
-	}
-	
+/*	private void buildButtonsHelper(int col, int row, String name){
+
+	}*/
 	private void updateGameField() {
 		for (int row = 0; row < numberOfRows; row++) {
 			for (int col = 0; col < numberOfColumns; col++) {
-				controller.tell(new GetCellAtRequest(col, row,"updateGameFieldRequest"), self());
+				setJButtonText(this.grid.getCellAt(row, col).toString(), row, col);
+				
+				if ("0".equals(getJButtonText(row, col))) {
+					setJButtonColor(row, col, Color.GREEN);
+				} else if ("x".equals(getJButtonText(row, col))) {
+					setJButtonColor(row, col, Color.GRAY);
+				} else if ("b".equals(getJButtonText(row, col)) || "f".equals(getJButtonText(row, col))) {
+					setJButtonColor(row, col, Color.RED);
+					if ("b".equals(getJButtonText(row, col)))
+						controller.tell("game lost", self());
+						//controller.setStateAndNotifyObservers(IController.State.GAME_LOST);
+				} else {
+					setJButtonColor(row, col, Color.WHITE);
+				}
 			}
 		}
 	}
 	
-	private void updateGameFieldHelper(int row, int col, Cell cell){
-		setJButtonText(cell.toString(), row, col);
-
-		if ("0".equals(getJButtonText(row, col))) {
-			setJButtonColor(row, col, Color.GREEN);
-		} else if ("x".equals(getJButtonText(row, col))) {
-			setJButtonColor(row, col, Color.GRAY);
-		} else if ("b".equals(getJButtonText(row, col)) || "f".equals(getJButtonText(row, col))) {
-			setJButtonColor(row, col, Color.RED);
-			if ("b".equals(getJButtonText(row, col)))
-				controller.tell("game lost", self());
-				//controller.setStateAndNotifyObservers(IController.State.GAME_LOST);
-		} else {
-			setJButtonColor(row, col, Color.WHITE);
-		}
-	}
 
 	private void setEnableButtons(boolean status) {
 		for (JButton[] buttons : gridAsJButtons) {
@@ -289,13 +303,14 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		case CHANGE_SETTINGS_SUCCESS:
 			break;
 		case LOAD_GAME:
-
 			setEnableButtons(true);
 			break;
 		}
-		if (state != IController.State.GAME_LOST)
+		if (state != IController.State.GAME_LOST){
+			System.out.println("------------------------------------------");
 			updateGameField();
-		applySettings();
+		}
+		//applySettings();
 	}
 
 	private void messageDialog(String text) {
@@ -398,13 +413,13 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	public void setNumberOfColumns(int numberOfColumns) {
 		this.numberOfColumns = numberOfColumns;
 	}
-	public int getNumberOfMines() {
+/*	public int getNumberOfMines() {
 		return numberOfMines;
 	}
 
 	public void setNumberOfMines(int numberOfMines) {
 		this.numberOfMines = numberOfMines;
-	}
+	}*/
 
 
 }
