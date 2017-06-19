@@ -1,10 +1,11 @@
 package de.htwg.se.minesweeper.controller.impl;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import akka.routing.BroadcastGroup;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
@@ -26,7 +27,6 @@ public class Controller extends AbstractActor implements IController {
 	private static final String DEFAULT_SIZE = "small";
 	private Grid grid;
 	private State state;
-	private Cell cell;
 
 	// for time measuring
 	private long timeOfGameStartMills;
@@ -40,9 +40,15 @@ public class Controller extends AbstractActor implements IController {
 		this.dao = chooseDB(2);
 
 		startNewGame();
+		
+
 
 	}*/
 	
+	List<String> paths = Arrays.asList("/user/mainActor/tui");
+	ActorRef notifyRef =
+			getContext().actorOf(new BroadcastGroup(paths).props(), "router16");
+
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
@@ -85,7 +91,7 @@ public class Controller extends AbstractActor implements IController {
  		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
-			//notifyObservers();
+			notifyObservers();
 		}
 		System.out.println(list.get(db));
 		return this.dao  ;
@@ -141,7 +147,7 @@ public class Controller extends AbstractActor implements IController {
 			// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
-			//notifyObservers();
+			notifyObservers();
 		} catch (Exception e) {
 			state = State.ERROR;
 		}
@@ -161,7 +167,7 @@ public class Controller extends AbstractActor implements IController {
 		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
-			//notifyObservers();
+			notifyObservers();
 		}
 
 	}
@@ -176,7 +182,7 @@ public class Controller extends AbstractActor implements IController {
 		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
-			//notifyObservers();
+			notifyObservers();
 		}
 	}
 
@@ -184,7 +190,7 @@ public class Controller extends AbstractActor implements IController {
 	public void commitNewSettingsAndRestart(int numberOfRowsAndCols, int numberOfMines) {
 		startNewGame(numberOfRowsAndCols, numberOfMines);
 		state = State.CHANGE_SETTINGS_SUCCESS;
-		//notifyObservers();
+		notifyObservers();
 	}
 
 	@Override
@@ -205,7 +211,7 @@ public class Controller extends AbstractActor implements IController {
 		recursiveRevealCell(cell);
 
 		// notify observers only once
-		//notifyObservers();
+		notifyObservers();
 
 	}
 
@@ -291,7 +297,7 @@ public class Controller extends AbstractActor implements IController {
 	@Override
 	public void touch() {
 		if (this.grid != null){
-			//notifyObservers();
+			notifyObservers();
 		}
 		else
 			startNewGame();
@@ -300,7 +306,7 @@ public class Controller extends AbstractActor implements IController {
 	@Override
 	public void setStateAndNotifyObservers(State state) {
 		this.state = state;
-		//notifyObservers();
+		notifyObservers();
 	}
 
 	@Override
@@ -324,6 +330,10 @@ public class Controller extends AbstractActor implements IController {
 	@Override
 	public long getElapsedTimeSeconds() {
 		return elapsedTimeSeconds;
+	}
+	
+	private void notifyObservers(){
+		notifyRef.tell("update", self());
 	}
 	
 

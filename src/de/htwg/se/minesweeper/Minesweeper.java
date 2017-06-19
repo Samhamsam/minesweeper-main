@@ -18,7 +18,6 @@ public class Minesweeper extends AbstractActor{
 		ActorSystem system = ActorSystem.create("testsystem");
 		final ActorRef mainActor = system.actorOf(MinesweeperActorStart.props(), "mainActor");
 		mainActor.tell("start", mainActor);
-		
 	}
 	
 	

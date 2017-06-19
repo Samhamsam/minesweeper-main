@@ -5,6 +5,7 @@ import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.ShowHelpTextRequest;
 import de.htwg.se.minesweeper.designpattern.observer.Event;
@@ -23,7 +24,7 @@ import java.util.List;
 
 import static de.htwg.se.minesweeper.controller.IController.State.*;
 
-public class TUI extends AbstractActor implements IObserver {
+public class TUI extends AbstractActor {
 
 	private static final Logger LOGGER = LogManager.getRootLogger(); // LogManager.getLogger();
 
@@ -36,7 +37,6 @@ public class TUI extends AbstractActor implements IObserver {
 
 	//private IAkkaController controller;
 	ActorRef controller;
-	ActorRef tuiRef;
 	
 	public TUI(final ActorRef controller) {
 		this.controller = controller;
@@ -52,18 +52,24 @@ public class TUI extends AbstractActor implements IObserver {
 				.match(ShowHelpTextRequest.class , s->{
 					LOGGER.info(s.helpText);;
 				})
+				.match(ScannerRequest.class , s->{
+					processInput(s.input);
+				})
+				.matchEquals("update", s->{
+					printTUI();
+				})
+				
 				.build();
-		
-		
-
 	}
 
 	public boolean processInput(String input) {
+		LOGGER.info("Enter INput Area");
 		lastUserInput = input;
 		List<String> inputParts = Arrays.asList(input.split(","));
 
 		String userInput = inputParts.get(0);
-
+		
+		
 		/*
 		 * if (controller.getState() == GAME_LOST || controller.getState() ==
 		 * GAME_WON) {
@@ -100,7 +106,10 @@ public class TUI extends AbstractActor implements IObserver {
 			break;
 
 		}
+		
+		System.out.println(self().path());
 		return true;
+		
 	}
 
 	private boolean runQuitCommand() {
@@ -167,13 +176,6 @@ public class TUI extends AbstractActor implements IObserver {
 			LOGGER.error(e);
 		}
 	}
-
-	@Override
-	public void update(Event e) {
-		printTUI();
-	}
-	
-
 	
 /*	public void getGridAsString() {
 		controller.tell("getGridAsString", self());

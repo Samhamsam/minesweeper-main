@@ -6,6 +6,7 @@ import de.htwg.se.minesweeper.aview.tui.TUI;
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.impl.AkkaController;
 import de.htwg.se.minesweeper.controller.impl.Controller;
+import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -39,7 +40,8 @@ public final class MinesweeperActorStart extends AbstractActor {
 		
 		while (loop) {
 			//loop = game.getTUI().processInput(scanner.next());
-			tui.tell(scanner.next(), self());
+			log.info("Telling");
+			tui.tell(new ScannerRequest(scanner.next()), self());
 		}
 	}
 	// test push
