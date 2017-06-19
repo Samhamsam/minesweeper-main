@@ -7,6 +7,9 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.routing.BroadcastGroup;
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.controller.impl.messages.GetCellAtRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.GetCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.GuiUpdateRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
@@ -45,9 +48,9 @@ public class Controller extends AbstractActor implements IController {
 
 	}*/
 	
-	List<String> paths = Arrays.asList("/user/mainActor/tui");
+	List<String> paths = Arrays.asList("/user/mainActor/tui"/*,"/user/mainActor/gui"*/);
 	ActorRef notifyRef =
-			getContext().actorOf(new BroadcastGroup(paths).props(), "router16");
+			getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
 
 	@Override
 	public Receive createReceive() {
@@ -79,6 +82,23 @@ public class Controller extends AbstractActor implements IController {
 				})
 				.match(NewSettingRequest.class, s->{
 					commitNewSettingsAndRestart(s.numRowsAndColumns, s.numberOfMines);;
+				})
+				.match(GetCellAtRequest.class, s->{
+					String BB = "buildButtonRequest";
+					String UGF = "updateGameFieldRequest";
+					
+					Cell cell = getGrid().getCellAt(s.row, s.col);
+					
+					if(s.typeOfRequest.equals(BB)){
+						getSender().tell(new GetCellRequest(cell, s.row, s.col,BB), self());
+					} 
+					else if (s.typeOfRequest.equals(UGF)){
+						getSender().tell(new GetCellRequest(cell, s.row, s.col,UGF), self());
+					}
+					
+				})
+				.matchEquals("updateGUI", s->{
+					getSender().tell(new GuiUpdateRequest(getHelpText(), getElapsedTimeSeconds(), getState()), self());
 				})
 				.build();
 	}

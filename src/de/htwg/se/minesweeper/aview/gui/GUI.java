@@ -2,20 +2,29 @@ package de.htwg.se.minesweeper.aview.gui;
 
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
-import de.htwg.se.minesweeper.designpattern.observer.Event;
-import de.htwg.se.minesweeper.designpattern.observer.IObserver;
+import de.htwg.se.minesweeper.controller.impl.messages.GetCellAtRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.GetCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.GuiUpdateRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
+import de.htwg.se.minesweeper.model.Cell;
 
 import javax.swing.*;
+
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class GUI extends JFrame implements ActionListener, IObserver, MouseListener {
-	private static final long serialVersionUID = 1L;
+public class GUI extends AbstractActor implements ActionListener, MouseListener {
 	private JButton[][] gridAsJButtons;
-	private IAkkaController controller;
+	//private IAkkaController controller;
 	private GUISettings guiSettings;
 
 	JFrame mainFrame;
@@ -31,11 +40,56 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	JMenuItem saveToDB;
 	JMenuItem couchDB;
 	JMenuItem hibernate;
+	Cell getCellAt;
+	ActorRef controller;
 	
-	public GUI(IAkkaController controller) {
+	private int numberOfRows;
+	private int numberOfColumns;
+	private int numberOfMines;
+	
+	
+/*	public GUI(IAkkaController controller) {
 		this.controller = controller;
 		mainFrame = new JFrame("Minesweeper");
 		initJFrame();
+	}*/
+	
+
+
+
+
+	public GUI(final ActorRef controller) {
+		this.controller = controller;
+		mainFrame = new JFrame("Minesweeper");
+		initJFrame();
+	}
+	
+	@Override
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(GetCellRequest.class , s->{
+					String BB = "buildButtonRequest";
+					String UGF = "updateGameFieldRequest";
+
+					if(s.typeOfRequest.equals(BB)){
+						buildButtonHelper(s.row, s.col, s.cellAt);
+					} 
+					else if (s.typeOfRequest.equals(UGF)){
+						updateGameFieldHelper(s.row,s.col,s.cellAt);
+					}
+					
+				})
+				.matchEquals("update", s->{
+					update();
+				})
+				.matchEquals("start", s->{
+					System.out.println("starting GUI");
+				})
+				.match(GuiUpdateRequest.class, s->{
+					updateImpl(s.state, s.time,s.helpText);
+				})
+				
+				.build();
 	}
 
 	private void initJFrame() {
@@ -77,7 +131,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		mainFrame.setJMenuBar(menuBar);
 
 		mainFrame.setLayout(
-				new GridLayout(controller.getGrid().getNumberOfRows(), controller.getGrid().getNumberOfColumns()));
+				new GridLayout(getNumberOfRows(), getNumberOfColumns()));
 		buildGameField();
 		mainFrame.setSize(30, 30);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -87,40 +141,49 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	}
 
 	private void buildGameField() {
-		gridAsJButtons = new JButton[controller.getGrid().getNumberOfRows()][controller.getGrid().getNumberOfColumns()];
-		buildButtons();
+		gridAsJButtons = new JButton[getNumberOfRows()][getNumberOfColumns()];
+		buildButtonsImpl();
 
 	}
-
-	private void buildButtons() {
-		for (int row = 0; row < controller.getGrid().getNumberOfRows(); row++) {
-			for (int col = 0; col < controller.getGrid().getNumberOfColumns(); col++) {
-				gridAsJButtons[row][col] = new JButton(controller.getGrid().getCellAt(row, col).toString());
-				mainFrame.add(gridAsJButtons[row][col]);
-				gridAsJButtons[row][col].setBackground(Color.GRAY);
-				gridAsJButtons[row][col].addMouseListener(this);
-				gridAsJButtons[row][col].setPreferredSize(new Dimension(50, 50));
+	
+	private void buildButtonsImpl() {
+		for (int row = 0; row < getNumberOfRows(); row++) {
+			for (int col = 0; col < getNumberOfColumns(); col++) {
+				controller.tell(new GetCellAtRequest(row,col,"buildButtonRequest"), self());
 			}
 		}
 	}
-
+	
+	private void buildButtonHelper(int row, int col, Cell cell){
+		gridAsJButtons[row][col] = new JButton(cell.toString());
+		mainFrame.add(gridAsJButtons[row][col]);
+		gridAsJButtons[row][col].setBackground(Color.GRAY);
+		gridAsJButtons[row][col].addMouseListener(this);
+		gridAsJButtons[row][col].setPreferredSize(new Dimension(50, 50));
+	}
+	
 	private void updateGameField() {
-		for (int row = 0; row < controller.getGrid().getNumberOfRows(); row++) {
-			for (int col = 0; col < controller.getGrid().getNumberOfColumns(); col++) {
-				setJButtonText(controller.getGrid().getCellAt(row, col).toString(), row, col);
-
-				if ("0".equals(getJButtonText(row, col))) {
-					setJButtonColor(row, col, Color.GREEN);
-				} else if ("x".equals(getJButtonText(row, col))) {
-					setJButtonColor(row, col, Color.GRAY);
-				} else if ("b".equals(getJButtonText(row, col)) || "f".equals(getJButtonText(row, col))) {
-					setJButtonColor(row, col, Color.RED);
-					if ("b".equals(getJButtonText(row, col)))
-						controller.setStateAndNotifyObservers(IController.State.GAME_LOST);
-				} else {
-					setJButtonColor(row, col, Color.WHITE);
-				}
+		for (int row = 0; row < numberOfRows; row++) {
+			for (int col = 0; col < numberOfColumns; col++) {
+				controller.tell(new GetCellAtRequest(col, row,"updateGameFieldRequest"), self());
 			}
+		}
+	}
+	
+	private void updateGameFieldHelper(int row, int col, Cell cell){
+		setJButtonText(cell.toString(), row, col);
+
+		if ("0".equals(getJButtonText(row, col))) {
+			setJButtonColor(row, col, Color.GREEN);
+		} else if ("x".equals(getJButtonText(row, col))) {
+			setJButtonColor(row, col, Color.GRAY);
+		} else if ("b".equals(getJButtonText(row, col)) || "f".equals(getJButtonText(row, col))) {
+			setJButtonColor(row, col, Color.RED);
+			if ("b".equals(getJButtonText(row, col)))
+				controller.tell("game lost", self());
+				//controller.setStateAndNotifyObservers(IController.State.GAME_LOST);
+		} else {
+			setJButtonColor(row, col, Color.WHITE);
 		}
 	}
 
@@ -132,12 +195,12 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		}
 		// Remove the button to start clean
 		mainFrame.setLayout(
-				new GridLayout(controller.getGrid().getNumberOfRows(), controller.getGrid().getNumberOfColumns()));
+				new GridLayout(getNumberOfRows(), getNumberOfColumns()));
 
 		buildGameField();
 
-		for (int row = 0; row < controller.getGrid().getNumberOfRows(); row++) {
-			for (int col = 0; col < controller.getGrid().getNumberOfColumns(); col++) {
+		for (int row = 0; row < getNumberOfRows(); row++) {
+			for (int col = 0; col < getNumberOfColumns(); col++) {
 				gridAsJButtons[col][row].setEnabled(status);
 			}
 		}
@@ -159,34 +222,41 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == newGame) {
-			controller.startNewGame();
+			controller.tell("start", self());
+			//controller.startNewGame();
 		} else if (e.getSource() == loadToDB) {
-			controller.loadFromDB();
+			controller.tell("loadDB", self());
+			//controller.loadFromDB();
 		}  else if (e.getSource() == saveToDB) {
-			controller.saveToDB();
+			controller.tell("safeDB", self());
+			//controller.saveToDB();
 		}
 		 else if (e.getSource() == couchDB) {
-				controller.chooseDB(0);
+				//controller.chooseDB(0);
 			}
 		 
 		 
 		 else if (e.getSource() == hibernate) {
-				controller.chooseDB(1);
+				//controller.chooseDB(1);
 			}
 		 
 		 else if (e.getSource() == quit) {
-			controller.quit();
+			controller.tell("ende", self());
+			 //controller.quit();
 		} else if (e.getSource() == help) {
-			controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);
+			//controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);
 		} else if (e.getSource() == settingsmenu) {
-			showSettings();
+			//showSettings();
 		}
 
 	}
-
-	@Override
-	public void update(Event e) {
-		final IController.State state = controller.getState();
+	
+	public void update(){
+		controller.tell("updateGUI", self());
+	}
+	
+	public void updateImpl(IController.State state, long time, String helpText) {
+		//final IController.State state = controller.getState();
 
 		if (state == IController.State.ERROR) {
 			messageDialog("Some Error occured! Please Check it");
@@ -205,15 +275,15 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 			break;
 
 		case GAME_WON:
-			messageDialog("You Won! " + controller.getElapsedTimeSeconds() + " Points!");
+			messageDialog("You Won! " + time + " Points!");
 			break;
 
 		case HELP_TEXT:
-			messageDialog(controller.getHelpText());
+			messageDialog(helpText);
 			break;
 
 		case CHANGE_SETTINGS_ACTIVATED:
-			showSettings();
+			//showSettings();
 			break;
 
 		case CHANGE_SETTINGS_SUCCESS:
@@ -223,7 +293,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 			setEnableButtons(true);
 			break;
 		}
-		if (controller.getState() != IController.State.GAME_LOST)
+		if (state != IController.State.GAME_LOST)
 			updateGameField();
 		applySettings();
 	}
@@ -244,11 +314,11 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		if (e.getButton() == MouseEvent.BUTTON1) {
 
 			if (e.getSource() == newGame) {
-				controller.startNewGame();
-
+				//controller.startNewGame();
+				controller.tell("start", self());
 			} else if (e.getSource() == quit) {
-				controller.quit();
-
+				//controller.quit();
+				controller.tell("ende", self());
 			} else {
 				revealCell(e);
 			}
@@ -276,12 +346,12 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	}
 
 	private void setFlag(MouseEvent e) {
-		for (int row = 0; row < controller.getGrid().getNumberOfRows(); row++) {
-			for (int col = 0; col < controller.getGrid().getNumberOfColumns(); col++) {
+		for (int row = 0; row < getNumberOfRows(); row++) {
+			for (int col = 0; col < getNumberOfColumns(); col++) {
 				Object buttonText = e.getSource();
 				if (buttonText.equals(gridAsJButtons[row][col])) {
-					controller.toggleFlag(row, col);
-
+					//controller.toggleFlag(row, col);
+					controller.tell(new SetFlagRequest(col, row),self());
 				}
 
 			}
@@ -290,24 +360,51 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 
 	private void revealCell(MouseEvent e) {
 		Object sourceButton = e.getSource();
-		for (int row = 0; row < controller.getGrid().getNumberOfRows(); row++) {
-			for (int col = 0; col < controller.getGrid().getNumberOfColumns(); col++) {
+		for (int row = 0; row < getNumberOfRows(); row++) {
+			for (int col = 0; col < getNumberOfColumns(); col++) {
 				if (sourceButton.equals(gridAsJButtons[row][col])) {
-					controller.revealCell(row, col);
+					//controller.revealCell(row, col);
+					controller.tell(new RevealCellRequest(col, row), self());
 				}
 
 			}
 		}
 	}
 
-	private void showSettings() {
-		guiSettings = new GUISettings(controller.getGrid().getNumberOfColumns(),
-				controller.getGrid().getNumberOfMines(), controller, mainFrame);
+/*	private void showSettings() {
+		guiSettings = new GUISettings(getNumberOfColumns(),
+				getNumberOfMines(), controller, mainFrame);
 		guiSettings.run();
-	}
+	}*/
 
 	private void applySettings() {
 		SwingUtilities.updateComponentTreeUI(mainFrame);
 	}
+	
+	
+	
+	public int getNumberOfRows() {
+		return numberOfRows;
+	}
+
+	public void setNumberOfRows(int numberOfRows) {
+		this.numberOfRows = numberOfRows;
+	}
+
+	public int getNumberOfColumns() {
+		return numberOfColumns;
+	}
+
+	public void setNumberOfColumns(int numberOfColumns) {
+		this.numberOfColumns = numberOfColumns;
+	}
+	public int getNumberOfMines() {
+		return numberOfMines;
+	}
+
+	public void setNumberOfMines(int numberOfMines) {
+		this.numberOfMines = numberOfMines;
+	}
+
 
 }

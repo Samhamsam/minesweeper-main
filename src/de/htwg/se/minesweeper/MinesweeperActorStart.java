@@ -30,9 +30,8 @@ public final class MinesweeperActorStart extends AbstractActor {
 	@Override
 	public void preStart() {
 		ActorRef controller = getContext().actorOf(Props.create(Controller.class),"controller");
-		ActorRef tui = getContext().actorOf(Props.create(TUI.class,controller),"tui");
-		//ActorRef gui = getContext().actorOf(Props.create(GUI.class),"gui");
-		
+		final ActorRef tui = getContext().actorOf(Props.create(TUI.class,controller),"tui");
+		getContext().actorOf(Props.create(GUI.class,controller),"gui");
 		
 		scanner = new Scanner(System.in);
 		controller.tell("start", self());
@@ -46,7 +45,7 @@ public final class MinesweeperActorStart extends AbstractActor {
 	}
 	// test push
 	private static Scanner scanner;
-	private TUI tui;
+	//private TUI tui;
  	protected IAkkaController controller;
 	private static MinesweeperActorStart instance = null;
 	private static AkkaHTTP akkaHTTP;
@@ -71,9 +70,9 @@ public final class MinesweeperActorStart extends AbstractActor {
 		return instance;
 	}
 
-	public TUI getTUI() {
+/*	public TUI getTUI() {
 		return tui;
-	}
+	}*/
 
 	public IAkkaController getController() {
 		return controller;
