@@ -7,16 +7,11 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.routing.BroadcastGroup;
 import de.htwg.se.minesweeper.controller.IController;
-import de.htwg.se.minesweeper.controller.impl.messages.GetCellAtRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.GetCellRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.GetGridRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.GuiUpdateRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.NumberOfRowsAndColumnsRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.ShowHelpTextRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.UpdateRequest;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 import de.htwg.se.minesweeper.persistence.IGridDao;
@@ -39,23 +34,14 @@ public class Controller extends AbstractActor implements IController {
 	private IGridDao dao;
 	private Set<IGridDao> allOfThem;
 	ActorRef notifyRef;
-/*	public Controller(Set<IGridDao> allOfThem) throws IOException {
-		//default DB4O
-		this.allOfThem = allOfThem;
-		this.dao = chooseDB(2);
-
-		startNewGame();
-		
-
-
-	}*/
 	
 	public Controller() {		
 		startNewGame();
 		List<String> paths = Arrays.asList("/user/mainActor/tui","/user/mainActor/gui");
 		notifyRef =
 				getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
-		notifyRef.tell(new GetGridRequest(this.grid,State.NEW_GAME), self());
+		//notifyRef.tell(new GetGridRequest(this.grid,State.NEW_GAME), self());
+		notifyObservers();
 	}
 	
 
@@ -63,17 +49,16 @@ public class Controller extends AbstractActor implements IController {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.matchEquals("printTUIRequest" , s->{
-					getSender().tell(new PrintTUIRequest(getState(), getElapsedTimeSeconds(), 
-							getHelpText(),getGrid().getNumberOfMines(),getGrid().getNumberOfRows(),getGrid().getCells()), self());
-				})
 				.matchEquals("ende", s->{
 					quit();
 				})
 				.matchEquals("start", s->{
 					startNewGame();
 				})
-				.matchEquals("showHelpText", s->{
+				.matchEquals("newGame", s->{
+					startNewGame(grid.getNumberOfColumns(),grid.getNumberOfMines());
+				})
+				.matchEquals(State.HELP_TEXT, s->{
 					getSender().tell(new ShowHelpTextRequest(getHelpText()), self());
 				})
 				.matchEquals("infoText", s->{
@@ -89,30 +74,7 @@ public class Controller extends AbstractActor implements IController {
 					revealCell(s.row,s.col);
 				})
 				.match(NewSettingRequest.class, s->{
-					commitNewSettingsAndRestart(s.numRowsAndColumns, s.numberOfMines);;
-				})
-				.match(GetCellAtRequest.class, s->{
-					String BB = "buildButtonRequest";
-					String UGF = "updateGameFieldRequest";
-					
-					String cellName = getGrid().getCellAt(s.row, s.col).toString();
-					
-					if(s.typeOfRequest.equals(BB)){
-						getSender().tell(new GetCellRequest(cellName, s.row, s.col,BB), self());
-					} 
-					else if (s.typeOfRequest.equals(UGF)){
-						getSender().tell(new GetCellRequest(cellName, s.row, s.col,UGF), self());
-					}
-					
-				})
-				.matchEquals("updateGUI", s->{
-					getSender().tell(new GuiUpdateRequest(getHelpText(), getElapsedTimeSeconds(), getState()), self());
-				})
-				.matchEquals("startGUI", s->{
-					//System.out.println(this.getGrid().getNumberOfColumns());
-					getSender().tell(new NumberOfRowsAndColumnsRequest(getGrid().getNumberOfRows(),getGrid().getNumberOfColumns(),getGrid().getNumberOfMines()), self());
-					//getSender().tell(new GetGridRequest(this.getGrid()), self());
-					
+					commitNewSettingsAndRestart(s.numRowsAndColumns, s.numberOfMines);
 				})
 				.build();
 	}
@@ -124,6 +86,7 @@ public class Controller extends AbstractActor implements IController {
 			this.dao = list.get(db);
  		} catch (Exception e) {
 			state = State.ERROR;
+			System.out.println("1");
 		} finally {
 			notifyObservers();
 		}
@@ -171,18 +134,20 @@ public class Controller extends AbstractActor implements IController {
 		}
 
 		startNewGame(numberOfRowsAndCols, numberOfMines);
+		//notifyObservers();
 	}
 
 	@Override
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
-
 			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
 			// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
-			notifyObservers();
-		} catch (Exception e) {
+			//notifyObservers();
+		} 
+		catch(Exception e) {
+			
 			state = State.ERROR;
 		}
 	}
@@ -200,6 +165,7 @@ public class Controller extends AbstractActor implements IController {
 			this.state = State.LOAD_GAME;
 		} catch (Exception e) {
 			state = State.ERROR;
+			System.out.println("3");
 		} finally {
 			notifyObservers();
 		}
@@ -215,6 +181,7 @@ public class Controller extends AbstractActor implements IController {
 			this.state = State.LOAD_GAME;
 		} catch (Exception e) {
 			state = State.ERROR;
+			System.out.println("4");
 		} finally {
 			notifyObservers();
 		}
@@ -367,8 +334,8 @@ public class Controller extends AbstractActor implements IController {
 	}
 	
 	private void notifyObservers(){
-		notifyRef.tell(new GetGridRequest(this.grid,State.UPDATE), self());
-		notifyRef.tell("update", self());
+		//notifyRef.tell(new GetGridRequest(this.grid,getState()), self());
+		notifyRef.tell(new UpdateRequest(getState(), getElapsedTimeSeconds(), getHelpText(), getGrid()), self());
 	}
 	
 

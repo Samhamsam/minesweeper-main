@@ -3,24 +3,26 @@ package de.htwg.se.minesweeper.aview.tui;
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.ShowHelpTextRequest;
-import de.htwg.se.minesweeper.designpattern.observer.Event;
-import de.htwg.se.minesweeper.designpattern.observer.IObserver;
+import de.htwg.se.minesweeper.controller.impl.messages.UpdateRequest;
+import de.htwg.se.minesweeper.model.Cell;
+import de.htwg.se.minesweeper.model.Grid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.stream.impl.fusing.Grouped;
 import akka.stream.impl.fusing.Log;
 
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.Icon;
 
 import static de.htwg.se.minesweeper.controller.IController.State.*;
 
@@ -46,19 +48,15 @@ public class TUI extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(PrintTUIRequest.class , s->{
-					printTUIImpl(s);
-				})
 				.match(ShowHelpTextRequest.class , s->{
 					LOGGER.info(s.helpText);;
 				})
 				.match(ScannerRequest.class , s->{
 					processInput(s.input);
 				})
-				.matchEquals("update", s->{
-					printTUI();
+				.match(UpdateRequest.class, s->{
+					printTUIImpl(s.state,s.elapsedTimeSeconds,s.getHelpText,s.grid);
 				})
-				
 				.build();
 	}
 
@@ -69,21 +67,6 @@ public class TUI extends AbstractActor {
 
 		String userInput = inputParts.get(0);
 		
-		
-		/*
-		 * if (controller.getState() == GAME_LOST || controller.getState() ==
-		 * GAME_WON) {
-		 * 
-		 * System.out.println("HAllo!");
-		 * 
-		 * switch (userInput) { case QUIT_COMMAND: return runQuitCommand();
-		 * 
-		 * case NEW_GAME_COMMAND: newGameAction(); break;
-		 * 
-		 * default: showHelpAction(); break; } }
-		 * 
-		 * else
-		 */
 		switch (userInput) {
 
 		case QUIT_COMMAND:
@@ -113,24 +96,19 @@ public class TUI extends AbstractActor {
 	}
 
 	private boolean runQuitCommand() {
-		//controller.quit();
 		controller.tell("ende", self());
 		return false; // quit loop in main program
 	}
 
 	private void showHelpAction() {
-		controller.tell("showHelpText", self());
-		//controller.setStateAndNotifyObservers(HELP_TEXT);
+		controller.tell(HELP_TEXT, self());
 	}
 
 	private void newGameAction() {
-		//controller.startNewGame();
-		controller.tell("start", self());
+		controller.tell("newGame", self());
 	}
 
 	private void playRoundAction(List<String> inputParts) {
-
-		//controller.setStateAndNotifyObservers(INFO_TEXT);
 		controller.tell("infoText", self());
 		
 		if (inputParts.size() == 2) {
@@ -147,11 +125,9 @@ public class TUI extends AbstractActor {
 			int row = Integer.parseInt(answerAsList.get(1));
 			int col = Integer.parseInt(answerAsList.get(2));
 
-			//controller.toggleFlag(row, col);
 			controller.tell(new SetFlagRequest(col, row), self());
 		} catch (Exception e) {
-			//controller.setStateAndNotifyObservers(ERROR);
-			controller.tell("error", self());
+			controller.tell(IController.State.ERROR, self());
 			LOGGER.error(e);
 		}
 	}
@@ -170,31 +146,21 @@ public class TUI extends AbstractActor {
 			int numRowsAndColumns = Integer.parseInt(list.get(1));
 			int numberOfMines = Integer.parseInt(list.get(2));
 			//controller.commitNewSettingsAndRestart(numRowsAndColumns, numberOfMines);
-			controller.tell(new NewSettingRequest(numRowsAndColumns,numberOfMines), self());
+			controller.tell(new NewSettingRequest(numRowsAndColumns,numberOfMines, null), self());
 		
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
 	}
 	
-/*	public void getGridAsString() {
-		controller.tell("getGridAsString", self());
-	}*/
-	
-	public void printTUI() {
-		controller.tell("printTUIRequest", self());
-	}
-	
-	
-	public void printTUIImpl(PrintTUIRequest printTUIRequest){
-		final IController.State state = printTUIRequest.state;
+	public void printTUIImpl(IController.State state, long time, String helpText,Grid grid){
 
 		if (state.equals(ERROR)) {
 			LOGGER.error("NOT A NUMBER!");
 			return;
 		}
 		// show this in every step? HELP_TEXT..
-		LOGGER.info(printTUIRequest.gridAsString);
+		LOGGER.info(getGridAsString(grid.getCells(), grid.getNumberOfRows()));
 
 		if ("".equals(lastUserInput)) {
 			LOGGER.info("You typed: " + lastUserInput + "\n");
@@ -207,11 +173,11 @@ public class TUI extends AbstractActor {
 			break;
 
 		case GAME_WON:
-			LOGGER.info("You Won! " + printTUIRequest.elapsedTimeSeconds + " Points!");
+			LOGGER.info("You Won! " + time + " Points!");
 			break;
 
 		case HELP_TEXT:
-			LOGGER.info(printTUIRequest.getHelpText);
+			LOGGER.info(helpText);
 			break;
 
 		case CHANGE_SETTINGS_ACTIVATED:
@@ -219,8 +185,8 @@ public class TUI extends AbstractActor {
 			break;
 
 		case CHANGE_SETTINGS_SUCCESS:
-			LOGGER.info("You set row/column to: " + printTUIRequest.numberOfRows + " and mines to: "
-					+ printTUIRequest.numberOfMines);
+			LOGGER.info("You set row/column to: " + grid.getNumberOfRows() + " and mines to: "
+					+ grid.getNumberOfMines());
 			break;
 
 		case INFO_TEXT: // or status == 0, running? default?
@@ -233,6 +199,21 @@ public class TUI extends AbstractActor {
 		if (state == GAME_LOST || state == GAME_WON) {
 			LOGGER.info("New Game? Type: n");
 		}
+	}
+	
+	private String getGridAsString(List<Cell> cells, int numberOfRows) {
+		StringBuilder result = new StringBuilder();
+		final List<Cell> allCells = cells;
+	
+		for (int row = 0; row < numberOfRows; row++) {
+			final int currentRow = row; // to use it in Lambda expression
+			allCells.stream().filter(cell -> cell.getPosition().getRow() == currentRow)
+					.forEach(cell -> result.append(cell.toString()).append(" "));
+	
+			result.append("\n");
+		}
+	
+		return result.toString();
 	}
 
 	/*public String printTUIAsString() {

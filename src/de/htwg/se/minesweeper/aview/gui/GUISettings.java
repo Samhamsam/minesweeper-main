@@ -2,11 +2,16 @@ package de.htwg.se.minesweeper.aview.gui;
 
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
+import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
 
 import javax.swing.*;
+
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+
 import java.awt.*;
 
-public class GUISettings {
+public class GUISettings extends AbstractActor{
 
 	Frame settingsFrame;
 
@@ -21,19 +26,28 @@ public class GUISettings {
 	private int newRowColumn;
 	private int newMines;
 
-	private IAkkaController controller;
+	//private IAkkaController controller;
 	static JSlider rowColSlider = new JSlider(JSlider.HORIZONTAL);
 	static JSlider mineSlider = new JSlider(JSlider.HORIZONTAL);
+	
+	ActorRef guiActor;
 
-	public GUISettings(int initialValueColumnAndRow, int initialValueMines, IAkkaController controller,
-			Frame settingsFrame) {
-		this.controller = controller;
-		this.settingsFrame = settingsFrame;
-		this.initialValueColumnAndRow = initialValueColumnAndRow;
-		this.initialValueMines = initialValueMines;
+	@Override
+	public Receive createReceive() {
+		return receiveBuilder()
+		.match(NewSettingRequest.class, s->{
+			initialValueColumnAndRow = s.numRowsAndColumns;
+			initialValueMines = s.numberOfMines;
+			this.settingsFrame = s.mainFrame;
+			run();
+		})
+		.build();
+	}
+	public GUISettings(ActorRef guiActor){
+		this.guiActor = guiActor;
 	}
 
-	public void run() {
+	private void run() {
 		rowColSlider.setMaximum(maximumCR);
 		rowColSlider.setMinimum(minimum);
 		rowColSlider.setValue(initialValueColumnAndRow);
@@ -60,14 +74,16 @@ public class GUISettings {
 		newRowColumn = rowColSlider.getValue();
 		newMines = mineSlider.getValue();
 		if (result == JOptionPane.OK_OPTION) {
-			setController();
+			//setController();
+			guiActor.tell(new NewSettingRequest(newRowColumn, newMines, null), self());
 		}
 
 	}
 
-	private void setController() {
+/*	private void setController() {
 		String answer = "c," + newRowColumn + "," + newMines;
-		controller.commitNewSettingsAndRestart(newRowColumn, newMines);
-	}
+		//controller.commitNewSettingsAndRestart(newRowColumn, newMines);
+	}*/
+
 
 }

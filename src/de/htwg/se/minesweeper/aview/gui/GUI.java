@@ -1,17 +1,14 @@
 package de.htwg.se.minesweeper.aview.gui;
 
+import de.htwg.se.minesweeper.aview.tui.TUI;
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.IController.State;
-import de.htwg.se.minesweeper.controller.impl.messages.GetCellAtRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.GetCellRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.GetGridRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.GuiUpdateRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.NumberOfRowsAndColumnsRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.PrintTUIRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
+import de.htwg.se.minesweeper.controller.impl.messages.UpdateRequest;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 
@@ -19,6 +16,7 @@ import javax.swing.*;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.Props;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -29,9 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 public class GUI extends AbstractActor implements ActionListener, MouseListener {
 	private JButton[][] gridAsJButtons;
-	//private IAkkaController controller;
-	//private GUISettings guiSettings;
-
 	JFrame mainFrame;
 	JMenuBar menuBar;
 	JMenu menu;
@@ -50,52 +45,47 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 
 	
 	ActorRef controller;
+	ActorRef guiSettings;
 	
 	private int numberOfRows;
 	private int numberOfColumns;
-	//private int numberOfMines;
+	private int numberOfMines;
 	
-	
-/*	public GUI(IAkkaController controller) {
-		this.controller = controller;
-		mainFrame = new JFrame("Minesweeper");
-		initJFrame();
-	}*/
-	
-
-
 
 
 	public GUI(final ActorRef controller) throws InterruptedException {
-		setNumberOfRows(10);
-		setNumberOfColumns(10);
-		//setNumberOfMines(1);
 		this.controller = controller;
-		//controller.tell("startGUI", getSelf());
-		
+		guiSettings = getContext().actorOf(Props.create(GUISettings.class,self()),"guisettings");
 	}
 	
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(NumberOfRowsAndColumnsRequest.class , s->{
-					setNumberOfRows(s.numberOfRows);
-					setNumberOfColumns(s.numberOfColumns);
-					//setNumberOfMines(s.numberOfMines);
-				})
-				.matchEquals("update", s->{
-					update();
-				})
-				.match(GuiUpdateRequest.class, s->{
-					updateImpl(s.state, s.time,s.helpText);
-				})
-				.match(GetGridRequest.class, s->{
+				.match(UpdateRequest.class, s->{
+					setNumberOfRows(s.grid.getNumberOfRows());
+					setNumberOfColumns(s.grid.getNumberOfColumns());
+					setNumberOfMines(s.grid.getNumberOfMines());
+					
 					this.grid = s.grid;
 					if(s.state == State.NEW_GAME){
 						mainFrame = new JFrame("Minesweeper");
 						initJFrame();
+					} else if(s.state == State.CHANGE_SETTINGS_SUCCESS){
+						//repaint
+						System.out.println("ITWORKS:");
+/*						SwingUtilities.updateComponentTreeUI(mainFrame);
+						mainFrame.invalidate();
+						mainFrame.validate();
+						mainFrame.repaint();*/
+						mainFrame.setVisible(false);
+						mainFrame = new JFrame("Minesweeper");
+						initJFrame();
+						System.out.println("ITWORKS");
 					}
-
+					updateImpl(s.state, s.elapsedTimeSeconds,s.getHelpText);
+				})
+				.match(NewSettingRequest.class, s->{
+					controller.tell(new NewSettingRequest(s.numRowsAndColumns, s.numberOfMines, null), self());
 				})
 				
 				.build();
@@ -143,8 +133,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 
 		mainFrame.setLayout(
 				new GridLayout(getNumberOfRows(), getNumberOfColumns()));
-		
-		//
+
 		mainFrame.setSize(30, 30);
 		
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -176,9 +165,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			}
 		}
 	}
-/*	private void buildButtonsHelper(int col, int row, String name){
 
-	}*/
 	private void updateGameField() {
 		for (int row = 0; row < numberOfRows; row++) {
 			for (int col = 0; col < numberOfColumns; col++) {
@@ -192,7 +179,6 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 					setJButtonColor(row, col, Color.RED);
 					if ("b".equals(getJButtonText(row, col)))
 						controller.tell("game lost", self());
-						//controller.setStateAndNotifyObservers(IController.State.GAME_LOST);
 				} else {
 					setJButtonColor(row, col, Color.WHITE);
 				}
@@ -236,7 +222,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == newGame) {
-			controller.tell("start", self());
+			controller.tell("newGame", self());
 			//controller.startNewGame();
 		} else if (e.getSource() == loadToDB) {
 			controller.tell("loadDB", self());
@@ -260,25 +246,20 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		} else if (e.getSource() == help) {
 			//controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);
 		} else if (e.getSource() == settingsmenu) {
+			guiSettings.tell(new NewSettingRequest(getNumberOfColumns(), getNumberOfMines(), mainFrame), self());
 			//showSettings();
 		}
 
 	}
 	
-	public void update(){
-		controller.tell("updateGUI", self());
-	}
-	
 	public void updateImpl(IController.State state, long time, String helpText) {
-		//final IController.State state = controller.getState();
-
 		if (state == IController.State.ERROR) {
 			messageDialog("Some Error occured! Please Check it");
 
 		}
 
 		switch (state) {
-
+		
 		case NEW_GAME:
 			setEnableButtons(true);
 			break;
@@ -298,6 +279,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 
 		case CHANGE_SETTINGS_ACTIVATED:
 			//showSettings();
+			
 			break;
 
 		case CHANGE_SETTINGS_SUCCESS:
@@ -307,10 +289,9 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			break;
 		}
 		if (state != IController.State.GAME_LOST){
-			System.out.println("------------------------------------------");
 			updateGameField();
 		}
-		//applySettings();
+		applySettings();
 	}
 
 	private void messageDialog(String text) {
@@ -365,7 +346,6 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			for (int col = 0; col < getNumberOfColumns(); col++) {
 				Object buttonText = e.getSource();
 				if (buttonText.equals(gridAsJButtons[row][col])) {
-					//controller.toggleFlag(row, col);
 					controller.tell(new SetFlagRequest(col, row),self());
 				}
 
@@ -378,19 +358,12 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		for (int row = 0; row < getNumberOfRows(); row++) {
 			for (int col = 0; col < getNumberOfColumns(); col++) {
 				if (sourceButton.equals(gridAsJButtons[row][col])) {
-					//controller.revealCell(row, col);
 					controller.tell(new RevealCellRequest(col, row), self());
 				}
 
 			}
 		}
 	}
-
-/*	private void showSettings() {
-		guiSettings = new GUISettings(getNumberOfColumns(),
-				getNumberOfMines(), controller, mainFrame);
-		guiSettings.run();
-	}*/
 
 	private void applySettings() {
 		SwingUtilities.updateComponentTreeUI(mainFrame);
@@ -413,13 +386,13 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	public void setNumberOfColumns(int numberOfColumns) {
 		this.numberOfColumns = numberOfColumns;
 	}
-/*	public int getNumberOfMines() {
+	public int getNumberOfMines() {
 		return numberOfMines;
 	}
 
 	public void setNumberOfMines(int numberOfMines) {
 		this.numberOfMines = numberOfMines;
-	}*/
+	}
 
 
 }
