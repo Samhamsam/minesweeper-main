@@ -25,3 +25,11 @@ One can also do the following if desired:
 3. Open Eclipse and import the file as follows: File > import > Gradle Project > Unzipped Minesweeper Folder
 4. Click Finish
 5. Run the program
+
+### Commands
+```
+gradle shadowJar
+sudo systemctl start docker #for arch linux
+sudo systemctl enable docker #for arch linux
+docker build -t minesweeper .
+```
