@@ -41,7 +41,7 @@ public class Controller extends AbstractActor implements IController {
 		notifyRef =
 				getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
 		//notifyRef.tell(new GetGridRequest(this.grid,State.NEW_GAME), self());
-		notifyObservers();
+		setStateAndNotifyObservers(State.FIRST_START);
 	}
 	
 
@@ -49,22 +49,23 @@ public class Controller extends AbstractActor implements IController {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.matchEquals("ende", s->{
+				.matchEquals(State.EXIT_GAME, s->{
 					quit();
 				})
-				.matchEquals("start", s->{
+				.matchEquals(State.NEW_GAME, s->{
 					startNewGame();
+					notifyObservers();
 				})
-				.matchEquals("newGame", s->{
-					startNewGame(grid.getNumberOfColumns(),grid.getNumberOfMines());
+				.matchEquals(State.GAME_LOST, s->{
+					setStateAndNotifyObservers(State.GAME_LOST);
 				})
 				.matchEquals(State.HELP_TEXT, s->{
-					getSender().tell(new ShowHelpTextRequest(getHelpText()), self());
+					setStateAndNotifyObservers(State.HELP_TEXT);
 				})
-				.matchEquals("infoText", s->{
-					this.state = State.INFO_TEXT;
+				.matchEquals(State.INFO_TEXT, s->{
+					setStateAndNotifyObservers(State.INFO_TEXT);
 				})
-				.matchEquals("error", s->{
+				.matchEquals(State.ERROR, s->{
 					this.state = State.ERROR;
 				})
 				.match(SetFlagRequest.class, s->{

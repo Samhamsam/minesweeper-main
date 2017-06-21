@@ -14,6 +14,8 @@ import de.htwg.se.minesweeper.model.Grid;
 
 import javax.swing.*;
 
+import com.google.inject.Stage;
+
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -65,22 +67,22 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 					setNumberOfRows(s.grid.getNumberOfRows());
 					setNumberOfColumns(s.grid.getNumberOfColumns());
 					setNumberOfMines(s.grid.getNumberOfMines());
-					
 					this.grid = s.grid;
-					if(s.state == State.NEW_GAME){
+					if(s.state == State.FIRST_START){
 						mainFrame = new JFrame("Minesweeper");
 						initJFrame();
 					} else if(s.state == State.CHANGE_SETTINGS_SUCCESS){
 						//repaint
-						System.out.println("ITWORKS:");
-/*						SwingUtilities.updateComponentTreeUI(mainFrame);
-						mainFrame.invalidate();
-						mainFrame.validate();
-						mainFrame.repaint();*/
 						mainFrame.setVisible(false);
 						mainFrame = new JFrame("Minesweeper");
 						initJFrame();
-						System.out.println("ITWORKS");
+						
+					} else if(s.state == State.NEW_GAME){
+						//repaint
+						mainFrame.setVisible(false);
+						mainFrame = new JFrame("Minesweeper");
+						initJFrame();
+						
 					}
 					updateImpl(s.state, s.elapsedTimeSeconds,s.getHelpText);
 				})
@@ -178,7 +180,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 				} else if ("b".equals(getJButtonText(row, col)) || "f".equals(getJButtonText(row, col))) {
 					setJButtonColor(row, col, Color.RED);
 					if ("b".equals(getJButtonText(row, col)))
-						controller.tell("game lost", self());
+						controller.tell(IController.State.GAME_LOST, self());
 				} else {
 					setJButtonColor(row, col, Color.WHITE);
 				}
@@ -222,7 +224,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == newGame) {
-			controller.tell("newGame", self());
+			controller.tell(IController.State.NEW_GAME, self());
 			//controller.startNewGame();
 		} else if (e.getSource() == loadToDB) {
 			controller.tell("loadDB", self());
@@ -241,9 +243,10 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			}
 		 
 		 else if (e.getSource() == quit) {
-			controller.tell("ende", self());
+			controller.tell(IController.State.EXIT_GAME, self());
 			 //controller.quit();
 		} else if (e.getSource() == help) {
+			controller.tell(IController.State.HELP_TEXT, self());
 			//controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);
 		} else if (e.getSource() == settingsmenu) {
 			guiSettings.tell(new NewSettingRequest(getNumberOfColumns(), getNumberOfMines(), mainFrame), self());
@@ -311,10 +314,10 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 
 			if (e.getSource() == newGame) {
 				//controller.startNewGame();
-				controller.tell("start", self());
+				controller.tell(IController.State.NEW_GAME, self());
 			} else if (e.getSource() == quit) {
 				//controller.quit();
-				controller.tell("ende", self());
+				controller.tell(IController.State.EXIT_GAME, self());
 			} else {
 				revealCell(e);
 			}

@@ -77,7 +77,7 @@ public class TUI extends AbstractActor {
 			break;
 
 		case HELP_COMMAND:
-			showHelpAction();
+			controller.tell(HELP_TEXT, self());
 			break;
 
 		case CHANGE_SETTINGS_COMMAND:
@@ -96,20 +96,20 @@ public class TUI extends AbstractActor {
 	}
 
 	private boolean runQuitCommand() {
-		controller.tell("ende", self());
+		controller.tell(IController.State.EXIT_GAME, self());
 		return false; // quit loop in main program
 	}
 
-	private void showHelpAction() {
-		controller.tell(HELP_TEXT, self());
-	}
+/*	private void showHelpAction() {
+		
+	}*/
 
 	private void newGameAction() {
-		controller.tell("newGame", self());
+		controller.tell(IController.State.NEW_GAME, self());
 	}
 
 	private void playRoundAction(List<String> inputParts) {
-		controller.tell("infoText", self());
+		controller.tell(IController.State.INFO_TEXT, self());
 		
 		if (inputParts.size() == 2) {
 			revealCell(inputParts);
