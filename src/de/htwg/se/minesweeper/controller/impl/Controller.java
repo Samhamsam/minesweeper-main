@@ -40,7 +40,6 @@ public class Controller extends AbstractActor implements IController {
 		List<String> paths = Arrays.asList("/user/mainActor/tui","/user/mainActor/gui");
 		notifyRef =
 				getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
-		//notifyRef.tell(new GetGridRequest(this.grid,State.NEW_GAME), self());
 		setStateAndNotifyObservers(State.FIRST_START);
 	}
 	
@@ -68,6 +67,12 @@ public class Controller extends AbstractActor implements IController {
 				.matchEquals(State.ERROR, s->{
 					this.state = State.ERROR;
 				})
+/*				.matchEquals("loadDB", s->{
+					loadFromDB();
+				})
+				.matchEquals("safeDB", s->{
+					loadFromDB();
+				})*/
 				.match(SetFlagRequest.class, s->{
 					toggleFlag(s.row, s.col);
 				})
@@ -87,7 +92,6 @@ public class Controller extends AbstractActor implements IController {
 			this.dao = list.get(db);
  		} catch (Exception e) {
 			state = State.ERROR;
-			System.out.println("1");
 		} finally {
 			notifyObservers();
 		}
@@ -142,10 +146,8 @@ public class Controller extends AbstractActor implements IController {
 	public void startNewGame(int numberOfRowsAndCols, int numberOfMines) {
 		try {
 			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
-			// this.grid = loadDB();
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
-			//notifyObservers();
 		} 
 		catch(Exception e) {
 			
@@ -166,7 +168,6 @@ public class Controller extends AbstractActor implements IController {
 			this.state = State.LOAD_GAME;
 		} catch (Exception e) {
 			state = State.ERROR;
-			System.out.println("3");
 		} finally {
 			notifyObservers();
 		}
@@ -182,7 +183,6 @@ public class Controller extends AbstractActor implements IController {
 			this.state = State.LOAD_GAME;
 		} catch (Exception e) {
 			state = State.ERROR;
-			System.out.println("4");
 		} finally {
 			notifyObservers();
 		}
@@ -335,7 +335,6 @@ public class Controller extends AbstractActor implements IController {
 	}
 	
 	private void notifyObservers(){
-		//notifyRef.tell(new GetGridRequest(this.grid,getState()), self());
 		notifyRef.tell(new UpdateRequest(getState(), getElapsedTimeSeconds(), getHelpText(), getGrid()), self());
 	}
 	
