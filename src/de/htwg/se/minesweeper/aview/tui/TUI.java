@@ -6,7 +6,6 @@ import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.ShowHelpTextRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.UpdateRequest;
 import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
@@ -16,9 +15,6 @@ import org.apache.logging.log4j.Logger;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.stream.impl.fusing.Grouped;
-import akka.stream.impl.fusing.Log;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,9 +44,6 @@ public class TUI extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(ShowHelpTextRequest.class , s->{
-					LOGGER.info(s.helpText);;
-				})
 				.match(ScannerRequest.class , s->{
 					processInput(s.input);
 				})

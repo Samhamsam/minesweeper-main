@@ -1,20 +1,16 @@
 package de.htwg.se.minesweeper.aview.gui;
 
-import de.htwg.se.minesweeper.aview.tui.TUI;
 import de.htwg.se.minesweeper.controller.IAkkaController;
 import de.htwg.se.minesweeper.controller.IController;
 import de.htwg.se.minesweeper.controller.IController.State;
 import de.htwg.se.minesweeper.controller.impl.messages.NewSettingRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.RevealCellRequest;
-import de.htwg.se.minesweeper.controller.impl.messages.ScannerRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.SetFlagRequest;
 import de.htwg.se.minesweeper.controller.impl.messages.UpdateRequest;
-import de.htwg.se.minesweeper.model.Cell;
 import de.htwg.se.minesweeper.model.Grid;
 
 import javax.swing.*;
 
-import com.google.inject.Stage;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
@@ -25,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.concurrent.TimeUnit;
 
 public class GUI extends AbstractActor implements ActionListener, MouseListener {
 	private JButton[][] gridAsJButtons;
