@@ -17,7 +17,7 @@ import akka.actor.Props;
 
  
 
-public final class Minesweeper extends AbstractActor{
+public final class Minesweeper {
 	// test push
 	private static Scanner scanner;
 	private TUI tui;
@@ -53,7 +53,7 @@ public final class Minesweeper extends AbstractActor{
 		return controller;
 	}
 
-/*	public static void main(final String[] args) throws IOException {
+	public static void main(final String[] args) throws IOException {
 
 		Minesweeper game = Minesweeper.getInstance();
 
@@ -63,26 +63,7 @@ public final class Minesweeper extends AbstractActor{
 		while (loop) {
 			loop = game.getTUI().processInput(scanner.next());
 		}
-	}*/
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.matchAny(s->{
-					Minesweeper game = Minesweeper.getInstance();
-
-					boolean loop = true;
-					scanner = new Scanner(System.in);
-
-					while (loop) {
-						loop = game.getTUI().processInput(scanner.next());
-					}
-				})
-				.build();
 	}
-	
-	static Props props(){
-		return Props.create(Minesweeper.class);
-	}
+
 
 }
