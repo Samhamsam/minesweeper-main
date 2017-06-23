@@ -32,7 +32,7 @@ public final class Minesweeper {
 
 		// controller = new Controller();
 		catch (Exception e) {
-			LOGGER.error("Error: Probably your VPN is not on!");
+			LOGGER.error("Error: Probably your VPN is not on!" + e);
 			System.exit(1);
 		}
 		
