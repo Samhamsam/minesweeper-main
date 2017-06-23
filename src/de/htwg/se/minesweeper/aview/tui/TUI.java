@@ -37,6 +37,7 @@ public class TUI implements IObserver {
 		List<String> inputParts = Arrays.asList(input.split(","));
 
 		String userInput = inputParts.get(0);
+		System.out.println(inputParts.size());
 
 		/*
 		 * if (controller.getState() == GAME_LOST || controller.getState() ==

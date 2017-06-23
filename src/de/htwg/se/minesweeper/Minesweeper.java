@@ -1,40 +1,46 @@
 package de.htwg.se.minesweeper;
 
 import de.htwg.se.minesweeper.aview.AkkaHTTP;
-import de.htwg.se.minesweeper.aview.gui.GUI;
 import de.htwg.se.minesweeper.aview.tui.TUI;
 import de.htwg.se.minesweeper.controller.IAkkaController;
-import de.htwg.se.minesweeper.controller.impl.AkkaController;
 
 import java.io.IOException;
 import java.util.Scanner;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import akka.actor.AbstractActor;
-import akka.actor.Props;
-
- 
 
 public final class Minesweeper {
+
+	private static final Logger LOGGER = LogManager.getRootLogger();
 	// test push
 	private static Scanner scanner;
 	private TUI tui;
- 	protected IAkkaController controller;
+	protected IAkkaController controller;
 	private static Minesweeper instance = null;
-	private static AkkaHTTP akkaHTTP;
-	
-	private Minesweeper() throws IOException {
-		 Injector inject = Guice.createInjector(new MinesweeperModule());
-		 controller = inject.getInstance(IAkkaController.class);
- 	//	controller = new Controller();
-		 
+	Injector inject;
+
+	private Minesweeper() {
+		try {
+			inject = Guice.createInjector(new MinesweeperModule());
+			controller = inject.getInstance(IAkkaController.class);
+		}
+
+		// controller = new Controller();
+		catch (Exception e) {
+			LOGGER.error("Error: Probably your VPN is not on!");
+			System.exit(1);
+		}
+		
 		tui = new TUI(controller);
-		 new GUI(controller);
-		 if (controller instanceof IAkkaController) {
-			 akkaHTTP = new AkkaHTTP(controller);
-			}
+		// new GUI(controller);
+		if (controller instanceof IAkkaController) {
+			new AkkaHTTP(controller);
+		}
 		tui.printTUI();
 	}
 
@@ -64,6 +70,5 @@ public final class Minesweeper {
 			loop = game.getTUI().processInput(scanner.next());
 		}
 	}
-
 
 }
