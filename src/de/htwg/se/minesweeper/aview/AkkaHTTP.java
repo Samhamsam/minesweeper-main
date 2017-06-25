@@ -43,7 +43,7 @@ public class AkkaHTTP {
 		this.controller = controller;
 
 		Source<IncomingConnection, CompletionStage<ServerBinding>> serverSource = Http.get(system)
-				.bind(ConnectHttp.toHost("localhost", 8080), materializer);
+				.bind(ConnectHttp.toHost("0.0.0.0", 8080), materializer);
 
 		final Function<HttpRequest, HttpResponse> requestHandler = new Function<HttpRequest, HttpResponse>() {
 
