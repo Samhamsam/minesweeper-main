@@ -31,5 +31,9 @@ One can also do the following if desired:
 gradle shadowJar
 sudo systemctl start docker #for arch linux
 sudo systemctl enable docker #for arch linux
-docker build -t minesweeper .
+docker build -t <imageName> .
+docker run -p 80:8080 -it --rm --name <imageName> <imageName>
+OR 
+docker run -p 80:8080 -d --rm --name <imageName> <imageName>
+to run in background
 ```
