@@ -1,6 +1,7 @@
 package de.htwg.se.minesweeper.persistence.hibernate;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -8,24 +9,32 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 public class HibernateFactory {
 
-	private static SessionFactory sessionFactory;
+	private static final SessionFactory sessionFactory = buildSessionFactory();
 
-	static {
-
-		final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-				.configure(HibernateFactory.class.getResource("/hibernate.cfg.xml")).build();
+	private static SessionFactory buildSessionFactory() {
 		try {
-			sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
-		} catch (Exception ex) {
+			StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+					.configure(HibernateFactory.class.getResource("/hibernate.cfg.xml")).build();
+			// sessionFactory = new
+			// MetadataSources(registry).buildMetadata().buildSessionFactory();
+			// Create a metadata sources using the specified service registry.
+			Metadata metadata = new MetadataSources(registry).getMetadataBuilder().build();
 
-			StandardServiceRegistryBuilder.destroy(registry);
+			return metadata.getSessionFactoryBuilder().build();
+		} catch (Exception ex) {
+			// StandardServiceRegistryBuilder.destroy(registry);
 			System.err.println("Failed to create sessionFactory object." + ex);
 			throw new ExceptionInInitializerError(ex);
 		}
 
 	}
 
-	public static SessionFactory getInstance() {
+	public static SessionFactory getSessionFactory() {
 		return sessionFactory;
+	}
+
+	public static void shutdown() {
+		// Close caches and connection pools
+		getSessionFactory().close();
 	}
 }

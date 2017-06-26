@@ -159,7 +159,7 @@ public class TUI implements IObserver {
 		final IController.State state = controller.getState();
 
 		if (state.equals(ERROR)) {
-			LOGGER.error("NOT A NUMBER!");
+			LOGGER.error("ERROR");
 			return;
 		}
 		// show this in every step? HELP_TEXT..
@@ -208,7 +208,7 @@ public class TUI implements IObserver {
 		final IController.State state = controller.getState();
 
 		if (state.equals(ERROR)) {
-			return "NOT A NUMBER!";
+			return "ERROR!";
 		}
 
 		final StringBuilder result = new StringBuilder(getGridAsString());

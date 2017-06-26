@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
 import de.htwg.se.minesweeper.model.Cell;
@@ -19,13 +19,14 @@ import de.htwg.se.minesweeper.persistence.IGridDao;
 
 public class GridHibernateDAO implements IGridDao {
 
+	SessionFactory sessionFactory;
+
 	private Grid gridFromDB(PersiGrid persiGrid) {
 		if (persiGrid == null) {
 			return null;
 		}
 		Grid grid = new Grid(persiGrid.getRows(), persiGrid.getCol(), persiGrid.getMines());
 		grid.setId(persiGrid.getId());
-		System.out.println(persiGrid.getCells().isEmpty());
 		for (PersiCell cellCouch : persiGrid.getCells()) {
 			Cell updateCells = this.updateCellInDB(cellCouch);
 
@@ -51,13 +52,14 @@ public class GridHibernateDAO implements IGridDao {
 		}
 		PersiGrid persiGrid;
 		String id = grid.getId();
-		// String id = UUID.randomUUID().toString();
 
 		if (containsGridById(id)) {
-
+			SessionFactory factory = HibernateFactory.getSessionFactory();
+			Session session = factory.getCurrentSession();
 			try {
-				Session session = HibernateFactory.getInstance().openSession();
-				session.beginTransaction();
+				if (session != null)
+					if (!session.getTransaction().isActive())
+						session.beginTransaction();
 				persiGrid = (PersiGrid) session.get(PersiGrid.class, id);
 
 			} catch (Exception ex) {
@@ -94,24 +96,23 @@ public class GridHibernateDAO implements IGridDao {
 
 	@Override
 	public void saveOrUpdateGrid(Grid grid) {
-		Transaction tx = null;
-		Session session = null;
-
+		SessionFactory factory = HibernateFactory.getSessionFactory();
+		Session session = factory.getCurrentSession();
 		try {
-			session = HibernateFactory.getInstance().getCurrentSession();
-			tx = session.beginTransaction();
-
+			if (session != null)
+				if (!session.getTransaction().isActive())
+					session.beginTransaction();
 			PersiGrid persigrid = copyGridToDB(grid);
 			session.saveOrUpdate(persigrid);
 			for (PersiCell persicell : persigrid.getCells()) {
-				System.out.println(persigrid.getCells().size());
 				session.saveOrUpdate(persicell);
 			}
-			tx.commit();
+
+			session.getTransaction().commit();
 
 		} catch (HibernateException ex) {
-			if (tx != null)
-				tx.rollback();
+			if (session != null)
+				session.getTransaction().rollback();
 
 			throw new RuntimeException(ex.getMessage());
 
@@ -122,12 +123,9 @@ public class GridHibernateDAO implements IGridDao {
 
 	@Override
 	public void deleteGridById(String id) {
-		Transaction tx = null;
-		Session session = null;
-
+		SessionFactory factory = HibernateFactory.getSessionFactory();
+		Session session = factory.getCurrentSession();
 		try {
-			session = HibernateFactory.getInstance().openSession(); // getCurrentSession();
-			tx = session.beginTransaction();
 			PersiGrid persigrid = (PersiGrid) session.get(PersiGrid.class, id);
 
 			for (PersiCell c : persigrid.getCells()) {
@@ -135,11 +133,11 @@ public class GridHibernateDAO implements IGridDao {
 			}
 			session.delete(persigrid);
 
-			tx.commit();
+			session.getTransaction().commit();
 
 		} catch (HibernateException ex) {
-			if (tx != null)
-				tx.rollback();
+			if (session != null)
+				session.getTransaction().rollback();
 			throw new RuntimeException(ex.getMessage());
 
 		} finally {
@@ -150,9 +148,11 @@ public class GridHibernateDAO implements IGridDao {
 	@Override
 	public Grid getGridById(String id) {
 
+		SessionFactory factory = HibernateFactory.getSessionFactory();
+		Session session = factory.getCurrentSession();
 		try {
-			Session session = HibernateFactory.getInstance().getCurrentSession();
 			Grid grid = gridFromDB((PersiGrid) session.get(PersiGrid.class, id));
+
 			return grid;
 		} catch (HibernateException ex) {
 
@@ -172,9 +172,12 @@ public class GridHibernateDAO implements IGridDao {
 	@Override
 	public List<Grid> getAllGrids() {
 
-		Session session = HibernateFactory.getInstance().getCurrentSession();
+		SessionFactory factory = HibernateFactory.getSessionFactory();
+		Session session = factory.getCurrentSession();
 
-		session.beginTransaction();
+		if (session != null)
+			if (!session.getTransaction().isActive())
+				session.beginTransaction();
 		CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
 		CriteriaQuery<PersiGrid> criteriaQuery = criteriaBuilder.createQuery(PersiGrid.class);
 		Root<PersiGrid> root = criteriaQuery.from(PersiGrid.class);

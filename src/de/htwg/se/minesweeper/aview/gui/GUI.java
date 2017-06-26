@@ -31,6 +31,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	JMenuItem saveToDB;
 	JMenuItem couchDB;
 	JMenuItem hibernate;
+	JMenuItem db4o;
 
 	public GUI(IAkkaController controller) {
 		this.controller = controller;
@@ -56,7 +57,8 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		loadToDB = new JMenuItem("load from DB");
 		saveToDB = new JMenuItem("Save to DB");
 		couchDB = new JMenuItem("use CouchDB");
-		hibernate = new JMenuItem("use hibernate");
+		hibernate = new JMenuItem("use Hibernate");
+		db4o = new JMenuItem("use DB4O");
 		settingsmenu = new JMenuItem("Settings");
 		menu.add(newGame);
 		menu.add(settingsmenu);
@@ -67,6 +69,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		db.add(saveToDB);
 		selectDB.add(couchDB);
 		selectDB.add(hibernate);
+		selectDB.add(db4o);
 		newGame.addActionListener(this);
 		quit.addActionListener(this);
 		help.addActionListener(this);
@@ -75,6 +78,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		saveToDB.addActionListener(this);
 		couchDB.addActionListener(this);
 		hibernate.addActionListener(this);
+		db4o.addActionListener(this);
 		mainFrame.setJMenuBar(menuBar);
 
 		mainFrame.setLayout(
@@ -171,6 +175,8 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 
 		else if (e.getSource() == hibernate) {
 			controller.chooseDB(1);
+		} else if (e.getSource() == hibernate) {
+			controller.chooseDB(2);
 		}
 
 		else if (e.getSource() == quit) {

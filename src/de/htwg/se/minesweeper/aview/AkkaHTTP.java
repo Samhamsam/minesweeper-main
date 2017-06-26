@@ -91,6 +91,21 @@ public class AkkaHTTP {
 
 						return HttpResponse.create().withEntity(ContentTypes.TEXT_HTML_UTF8, htmlString());
 
+					} else if (uri.path().equals("/saveDB4O")) {
+						controller.chooseDB(2);
+						controller.saveToDB();
+						return HttpResponse.create().withEntity(ContentTypes.TEXT_HTML_UTF8, dbString());
+
+					} else if (uri.path().equals("/saveHibernate")) {
+						controller.chooseDB(1);
+						controller.saveToDB();
+						return HttpResponse.create().withEntity(ContentTypes.TEXT_HTML_UTF8, dbString());
+
+					} else if (uri.path().equals("/saveCouchDB")) {
+						controller.chooseDB(3);
+						controller.saveToDB();
+						return HttpResponse.create().withEntity(ContentTypes.TEXT_HTML_UTF8, dbString());
+
 					} else {
 						return NOT_FOUND;
 					}
@@ -119,6 +134,11 @@ public class AkkaHTTP {
 
 	private String htmlString() {
 		return "<html><body><h1>Hello!</h1><ul><li><p> Create new Game :</p><div><a href=new>click here </a></div></li><li><p>Get help :</p><div><a href=help> click here</a></div></li><li><p>Get current Game</p><div><a href=current>click here </a></div></li> <li><p>Get Cells infos</p><div><a href=cells>click here </a></div></li><li><p>Get points :</p><div><a href=point>click here </a></div></li><li><p>Get Grid infos</p><div><a href=grid> click here </a></div></li><li><p>Get Game State :</p><div><a href=state> click here</a></div></li></ul></body></html>";
+
+	}
+
+	private String dbString() {
+		return "Ok";
 
 	}
 }

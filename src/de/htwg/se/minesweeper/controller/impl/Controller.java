@@ -31,6 +31,9 @@ public class Controller extends Observable implements IController {
 
 	public Controller(Set<IGridDao> allOfThem) throws IOException {
 		// default DB4O
+		// HIBERNATE 1
+		// DB4O 2
+		// COUCHDB 3
 		this.allOfThem = allOfThem;
 		this.dao = chooseDB(2);
 
@@ -44,6 +47,7 @@ public class Controller extends Observable implements IController {
 		try {
 			this.dao = list.get(db);
 		} catch (Exception e) {
+			System.out.println(e);
 			state = State.ERROR;
 		} finally {
 			notifyObservers();
@@ -103,6 +107,7 @@ public class Controller extends Observable implements IController {
 			this.timeOfGameStartMills = System.currentTimeMillis();
 			notifyObservers();
 		} catch (Exception e) {
+
 			state = State.ERROR;
 		}
 	}
@@ -119,6 +124,7 @@ public class Controller extends Observable implements IController {
 			}
 			this.state = State.LOAD_GAME;
 		} catch (Exception e) {
+			System.err.println(e);
 			state = State.ERROR;
 		} finally {
 			notifyObservers();
@@ -134,6 +140,7 @@ public class Controller extends Observable implements IController {
 
 			this.state = State.LOAD_GAME;
 		} catch (Exception e) {
+			System.err.println(e);
 			state = State.ERROR;
 		} finally {
 			notifyObservers();

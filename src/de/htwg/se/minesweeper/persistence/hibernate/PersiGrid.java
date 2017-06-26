@@ -17,7 +17,7 @@ public class PersiGrid implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	@Id
-	@Column(name = "id")
+	@Column(name = "id", columnDefinition = "varchar(100)")
 	private String gridId;
 
 	@OneToMany(mappedBy = "persiGrid")

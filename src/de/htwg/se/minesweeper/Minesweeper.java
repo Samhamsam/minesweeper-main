@@ -1,6 +1,7 @@
 package de.htwg.se.minesweeper;
 
 import de.htwg.se.minesweeper.aview.AkkaHTTP;
+import de.htwg.se.minesweeper.aview.gui.GUI;
 import de.htwg.se.minesweeper.aview.tui.TUI;
 import de.htwg.se.minesweeper.controller.IAkkaController;
 
@@ -31,12 +32,12 @@ public final class Minesweeper {
 
 		// controller = new Controller();
 		catch (Exception e) {
-			LOGGER.error("Error: Probably your VPN is not on!" + e);
+			LOGGER.error("Error: Probably your VPN is not on!\n" + e);
 			System.exit(1);
 		}
 
 		tui = new TUI(controller);
-		// new GUI(controller);
+		new GUI(controller);
 		if (controller instanceof IAkkaController) {
 			new AkkaHTTP(controller);
 		}

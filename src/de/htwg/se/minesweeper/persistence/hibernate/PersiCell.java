@@ -18,7 +18,7 @@ public class PersiCell implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@ManyToOne
-	@JoinColumn(name = "gridid")
+	@JoinColumn(name = "gridid", columnDefinition = "varchar(100)")
 	private PersiGrid persiGrid;
 	@Column(name = "hasMine")
 
