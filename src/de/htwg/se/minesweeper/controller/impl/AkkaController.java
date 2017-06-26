@@ -24,6 +24,7 @@ public class AkkaController extends Controller implements IAkkaController {
 
 	IAkkaController c;
 	private Set<IGridDao> allOfThem;
+
 	@Inject
 	public AkkaController(Set<IGridDao> allOfThem, IAkkaController c) throws IOException {
 		super(allOfThem);
@@ -40,11 +41,13 @@ public class AkkaController extends Controller implements IAkkaController {
 
 		List<JsonObject> all = new ArrayList<>();
 
-		jsonObjectState = Json.createObjectBuilder().add("State", c.getState().toString()).build(); // or .add() 
-				
-		jsonObjectPoint =  Json.createObjectBuilder().add("Points", "").build();
+		jsonObjectState = Json.createObjectBuilder().add("State", c.getState().toString()).build(); // or
+																									// .add()
 
-		jsonObjectGrid  = Json.createObjectBuilder().add("Grid",
+		jsonObjectPoint = Json.createObjectBuilder().add("Points", "").build();
+
+		jsonObjectGrid = Json.createObjectBuilder()
+				.add("Grid",
 						Json.createObjectBuilder().add("numberOfRows", c.getGrid().getNumberOfRows())
 								.add("numberOfColumns", c.getGrid().getNumberOfColumns())
 								.add("numberOfMines", c.getGrid().getNumberOfMines()))
@@ -52,7 +55,7 @@ public class AkkaController extends Controller implements IAkkaController {
 		all.add(jsonObjectState);
 		all.add(jsonObjectPoint);
 		all.add(jsonObjectGrid);
-		
+
 		for (Cell cell : c.getGrid().getCells()) {
 
 			jsonObjectCell = Json.createObjectBuilder()
@@ -64,15 +67,11 @@ public class AkkaController extends Controller implements IAkkaController {
 							.add("isRevealed", cell.isRevealed()).add("surroundingMines", cell.getSurroundingMines()))
 
 					.build();
-		
+
 			all.add(jsonObjectCell);
 		}
-	
-		
-		
-		return  all;
-	}
 
-	
+		return all;
+	}
 
 }

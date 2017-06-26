@@ -1,5 +1,5 @@
 FROM openjdk:8
-MAINTAINER MINESWEEPER "@htwg"
-COPY . /docker/minesweeper
+COPY /build/libs/ /docker/minesweeper
 WORKDIR /docker/minesweeper
-CMD ["java", "-jar","build/libs/minesweeper-main-all.jar"]
+EXPOSE 8080
+CMD ["java", "-jar","/docker/minesweeper/minesweeper-main-all.jar"]

@@ -6,7 +6,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 //import de.htwg.se.minesweeper.persistence.DAOFactory;
 
-public class HibernateFactory   {
+public class HibernateFactory {
 
 	private static SessionFactory sessionFactory;
 

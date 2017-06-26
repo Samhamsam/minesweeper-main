@@ -18,8 +18,12 @@ public class Grid {
 	private int numberOfRows;
 	private int numberOfColumns;
 	private int numberOfMines;
-	public Grid(){}
+
+	public Grid() {
+	}
+
 	String id;
+
 	// default constructor for empty grid
 	public Grid(int numberOfRows, int numberOfColums) {
 
@@ -27,7 +31,7 @@ public class Grid {
 		this.numberOfRows = numberOfRows;
 		this.numberOfColumns = numberOfColums;
 		this.id = UUID.randomUUID().toString();
- 
+
 		for (int row = 0; row < numberOfRows; row++) {
 			for (int col = 0; col < numberOfColums; col++) {
 				final Cell cell = new Cell(new Cell.Position(row, col));
@@ -137,15 +141,14 @@ public class Grid {
 	public int getNumberOfColumns() {
 		return numberOfColumns;
 	}
-	
-	public String getId(){
- 		return id;
-		
+
+	public String getId() {
+		return id;
+
 	}
 
 	public void setId(String id) {
 		this.id = id;
 	}
 
-	 
 }

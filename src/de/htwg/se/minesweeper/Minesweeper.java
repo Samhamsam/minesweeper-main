@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-
 public final class Minesweeper {
 
 	private static final Logger LOGGER = LogManager.getRootLogger();
@@ -35,7 +34,7 @@ public final class Minesweeper {
 			LOGGER.error("Error: Probably your VPN is not on!" + e);
 			System.exit(1);
 		}
-		
+
 		tui = new TUI(controller);
 		// new GUI(controller);
 		if (controller instanceof IAkkaController) {

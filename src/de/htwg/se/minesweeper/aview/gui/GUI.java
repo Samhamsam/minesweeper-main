@@ -24,14 +24,14 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	JMenu menuQuestion;
 	JMenuItem newGame;
 	JMenuItem quit, settingsmenu, help;
-	 
+
 	JMenu db;
 	JMenu selectDB;
 	JMenuItem loadToDB;
 	JMenuItem saveToDB;
 	JMenuItem couchDB;
 	JMenuItem hibernate;
-	
+
 	public GUI(IAkkaController controller) {
 		this.controller = controller;
 		controller.addObserver(this);
@@ -50,7 +50,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		menuBar.add(db);
 		menuBar.add(selectDB);
 		newGame = new JMenuItem("New Game");
- 		quit = new JMenuItem("Quit");
+		quit = new JMenuItem("Quit");
 		help = new JMenuItem("Help");
 
 		loadToDB = new JMenuItem("load from DB");
@@ -59,7 +59,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		hibernate = new JMenuItem("use hibernate");
 		settingsmenu = new JMenuItem("Settings");
 		menu.add(newGame);
- 		menu.add(settingsmenu);
+		menu.add(settingsmenu);
 		menu.add(quit);
 
 		menuQuestion.add(help);
@@ -68,7 +68,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		selectDB.add(couchDB);
 		selectDB.add(hibernate);
 		newGame.addActionListener(this);
- 		quit.addActionListener(this);
+		quit.addActionListener(this);
 		help.addActionListener(this);
 		settingsmenu.addActionListener(this);
 		loadToDB.addActionListener(this);
@@ -163,19 +163,17 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 			controller.startNewGame();
 		} else if (e.getSource() == loadToDB) {
 			controller.loadFromDB();
-		}  else if (e.getSource() == saveToDB) {
+		} else if (e.getSource() == saveToDB) {
 			controller.saveToDB();
+		} else if (e.getSource() == couchDB) {
+			controller.chooseDB(0);
 		}
-		 else if (e.getSource() == couchDB) {
-				controller.chooseDB(0);
-			}
-		 
-		 
-		 else if (e.getSource() == hibernate) {
-				controller.chooseDB(1);
-			}
-		 
-		 else if (e.getSource() == quit) {
+
+		else if (e.getSource() == hibernate) {
+			controller.chooseDB(1);
+		}
+
+		else if (e.getSource() == quit) {
 			controller.quit();
 		} else if (e.getSource() == help) {
 			controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);

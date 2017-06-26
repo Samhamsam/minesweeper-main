@@ -7,13 +7,11 @@ import org.ektorp.support.TypeDiscriminator;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
- 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PersiGrid extends CouchDbDocument {
-	
+
 	private static final long serialVersionUID = 1L;
-	
-	
+
 	@TypeDiscriminator
 	private String id;
 	private List<PersiCell> cells;
@@ -63,7 +61,5 @@ public class PersiGrid extends CouchDbDocument {
 	public void setMines(int mines) {
 		this.mines = mines;
 	}
-
- 
 
 }

@@ -56,9 +56,4 @@ public interface IController extends IObservable {
 
 	IGridDao chooseDB(int db);
 
-	 
-
- 
-
-	 
 }

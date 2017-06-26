@@ -25,7 +25,7 @@ import akka.http.javadsl.model.HttpMethods;
 import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.model.Uri;
- 
+
 import akka.japi.function.Function;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
@@ -43,8 +43,8 @@ public class AkkaHTTP {
 		this.controller = controller;
 
 		Source<IncomingConnection, CompletionStage<ServerBinding>> serverSource = Http.get(system)
-				.bind(ConnectHttp.toHost("localhost", 8080), materializer);
-
+				.bind(ConnectHttp.toHost("0.0.0.0", 8080), materializer);
+		System.out.println("akka http running");
 		final Function<HttpRequest, HttpResponse> requestHandler = new Function<HttpRequest, HttpResponse>() {
 
 			private static final long serialVersionUID = 1L;
@@ -104,7 +104,7 @@ public class AkkaHTTP {
 			System.out.println("Accepted new connection from " + connection.remoteAddress());
 
 			connection.handleWithSyncHandler(requestHandler, materializer);
-			 
+
 		})).run(materializer);
 
 	}

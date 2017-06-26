@@ -30,25 +30,25 @@ public class Controller extends Observable implements IController {
 	private Set<IGridDao> allOfThem;
 
 	public Controller(Set<IGridDao> allOfThem) throws IOException {
-		//default DB4O
+		// default DB4O
 		this.allOfThem = allOfThem;
 		this.dao = chooseDB(2);
 
 		startNewGame();
 
 	}
+
 	@Override
 	public IGridDao chooseDB(int db) {
 		List<IGridDao> list = new ArrayList<IGridDao>(allOfThem);
 		try {
 			this.dao = list.get(db);
- 		} catch (Exception e) {
+		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
 			notifyObservers();
 		}
-		System.out.println(list.get(db));
-		return this.dao  ;
+		return this.dao;
 	}
 
 	@Override

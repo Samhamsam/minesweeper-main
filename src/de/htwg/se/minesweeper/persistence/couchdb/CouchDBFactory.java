@@ -10,12 +10,10 @@ import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
- 
- 
-public class CouchDBFactory  {
+public class CouchDBFactory {
 
 	private CouchDbConnector db = null;
- 	private static final Logger LOGGER = LogManager.getRootLogger();
+	private static final Logger LOGGER = LogManager.getRootLogger();
 
 	public CouchDbConnector connection() {
 		HttpClient client = null;
@@ -23,8 +21,8 @@ public class CouchDBFactory  {
 			client = new StdHttpClient.Builder().url("http://lenny2.in.htwg-konstanz.de:5984").build();
 
 		} catch (MalformedURLException e) {
-	 		LOGGER.error("Malformed URL", e);
- 		}
+			LOGGER.error("Malformed URL", e);
+		}
 		CouchDbInstance dbInstance = new StdCouchDbInstance(client);
 		db = dbInstance.createConnector("minesweeper_ma2017", true);
 		db.createDatabaseIfNotExists();

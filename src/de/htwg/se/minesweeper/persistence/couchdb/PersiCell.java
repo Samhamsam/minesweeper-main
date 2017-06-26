@@ -5,9 +5,7 @@ import org.ektorp.support.CouchDbDocument;
 import de.htwg.se.minesweeper.model.Cell.Position;
 
 public class PersiCell extends CouchDbDocument {
-	
-	
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private boolean hasMine;
@@ -18,7 +16,6 @@ public class PersiCell extends CouchDbDocument {
 	private int row;
 	private int col;
 
-	
 	public PersiCell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines, int row, int col) {
 		super();
 		this.hasMine = hasMine;
