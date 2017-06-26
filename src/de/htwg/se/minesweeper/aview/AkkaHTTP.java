@@ -44,7 +44,7 @@ public class AkkaHTTP {
 
 		Source<IncomingConnection, CompletionStage<ServerBinding>> serverSource = Http.get(system)
 				.bind(ConnectHttp.toHost("0.0.0.0", 8080), materializer);
-		System.out.println("akka http running");
+
 		final Function<HttpRequest, HttpResponse> requestHandler = new Function<HttpRequest, HttpResponse>() {
 
 			private static final long serialVersionUID = 1L;
