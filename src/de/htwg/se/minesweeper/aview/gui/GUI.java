@@ -11,7 +11,6 @@ import de.htwg.se.minesweeper.model.Grid;
 
 import javax.swing.*;
 
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -30,7 +29,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	JMenu menuQuestion;
 	JMenuItem newGame;
 	JMenuItem quit, settingsmenu, help;
-	 
+
 	JMenu db;
 	JMenu selectDB;
 	JMenuItem loadToDB;
@@ -40,56 +39,51 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 
 	Grid grid;
 
-	
 	ActorRef controller;
 	ActorRef guiSettings;
-	
+
 	private int numberOfRows;
 	private int numberOfColumns;
 	private int numberOfMines;
-	
-
 
 	public GUI(final ActorRef controller) throws InterruptedException {
 		this.controller = controller;
-		guiSettings = getContext().actorOf(Props.create(GUISettings.class,self()),"guisettings");
+		guiSettings = getContext().actorOf(Props.create(GUISettings.class, self()), "guisettings");
 	}
-	
+
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder()
-				.match(UpdateRequest.class, s->{
-					setNumberOfRows(s.grid.getNumberOfRows());
-					setNumberOfColumns(s.grid.getNumberOfColumns());
-					setNumberOfMines(s.grid.getNumberOfMines());
-					this.grid = s.grid;
-					if(s.state == State.FIRST_START){
-						mainFrame = new JFrame("Minesweeper");
-						initJFrame();
-					} else if(s.state == State.CHANGE_SETTINGS_SUCCESS){
-						//repaint
-						mainFrame.setVisible(false);
-						mainFrame = new JFrame("Minesweeper");
-						initJFrame();
-						
-					} else if(s.state == State.NEW_GAME){
-						//repaint
-						mainFrame.setVisible(false);
-						mainFrame = new JFrame("Minesweeper");
-						initJFrame();
-						
-					}
-					updateImpl(s.state, s.elapsedTimeSeconds,s.getHelpText);
-				})
-				.match(NewSettingRequest.class, s->{
-					controller.tell(new NewSettingRequest(s.numRowsAndColumns, s.numberOfMines, null), self());
-				})
-				
+		return receiveBuilder().match(UpdateRequest.class, s -> {
+			setNumberOfRows(s.grid.getNumberOfRows());
+			setNumberOfColumns(s.grid.getNumberOfColumns());
+			setNumberOfMines(s.grid.getNumberOfMines());
+			this.grid = s.grid;
+			if (s.state == State.FIRST_START) {
+				mainFrame = new JFrame("Minesweeper");
+				initJFrame();
+			} else if (s.state == State.CHANGE_SETTINGS_SUCCESS) {
+				// repaint
+				mainFrame.setVisible(false);
+				mainFrame = new JFrame("Minesweeper");
+				initJFrame();
+
+			} else if (s.state == State.NEW_GAME) {
+				// repaint
+				mainFrame.setVisible(false);
+				mainFrame = new JFrame("Minesweeper");
+				initJFrame();
+
+			}
+			updateImpl(s.state, s.elapsedTimeSeconds, s.getHelpText);
+		}).match(NewSettingRequest.class, s -> {
+			controller.tell(new NewSettingRequest(s.numRowsAndColumns, s.numberOfMines, null), self());
+		})
+
 				.build();
 	}
 
 	private void initJFrame() throws InterruptedException {
-		
+
 		menuBar = new JMenuBar();
 		menu = new JMenu("Menu");
 		menuQuestion = new JMenu("?");
@@ -100,7 +94,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		menuBar.add(db);
 		menuBar.add(selectDB);
 		newGame = new JMenuItem("New Game");
- 		quit = new JMenuItem("Quit");
+		quit = new JMenuItem("Quit");
 		help = new JMenuItem("Help");
 
 		loadToDB = new JMenuItem("load from DB");
@@ -109,7 +103,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		hibernate = new JMenuItem("use hibernate");
 		settingsmenu = new JMenuItem("Settings");
 		menu.add(newGame);
- 		menu.add(settingsmenu);
+		menu.add(settingsmenu);
 		menu.add(quit);
 
 		menuQuestion.add(help);
@@ -118,7 +112,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		selectDB.add(couchDB);
 		selectDB.add(hibernate);
 		newGame.addActionListener(this);
- 		quit.addActionListener(this);
+		quit.addActionListener(this);
 		help.addActionListener(this);
 		settingsmenu.addActionListener(this);
 		loadToDB.addActionListener(this);
@@ -128,18 +122,16 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		mainFrame.setJMenuBar(menuBar);
 		buildGameField();
 
-		mainFrame.setLayout(
-				new GridLayout(getNumberOfRows(), getNumberOfColumns()));
+		mainFrame.setLayout(new GridLayout(getNumberOfRows(), getNumberOfColumns()));
 
 		mainFrame.setSize(30, 30);
-		
+
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.pack();
 		mainFrame.setLocationRelativeTo(null);
-		
+
 		mainFrame.setVisible(true);
-		
-		
+
 	}
 
 	private void buildGameField() {
@@ -147,13 +139,14 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		buildButtonsImpl();
 
 	}
-	
+
 	private void buildButtonsImpl() {
-		
+
 		for (int row = 0; row < getNumberOfRows(); row++) {
 			for (int col = 0; col < getNumberOfColumns(); col++) {
-				
-				//controller.tell(new GetCellAtRequest(row, col, "buildButtonRequest"), self());
+
+				// controller.tell(new GetCellAtRequest(row, col,
+				// "buildButtonRequest"), self());
 				gridAsJButtons[row][col] = new JButton();
 				mainFrame.add(gridAsJButtons[row][col]);
 				gridAsJButtons[row][col].setBackground(Color.GRAY);
@@ -167,7 +160,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		for (int row = 0; row < numberOfRows; row++) {
 			for (int col = 0; col < numberOfColumns; col++) {
 				setJButtonText(this.grid.getCellAt(row, col).toString(), row, col);
-				
+
 				if ("0".equals(getJButtonText(row, col))) {
 					setJButtonColor(row, col, Color.GREEN);
 				} else if ("x".equals(getJButtonText(row, col))) {
@@ -182,7 +175,6 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			}
 		}
 	}
-	
 
 	private void setEnableButtons(boolean status) {
 		for (JButton[] buttons : gridAsJButtons) {
@@ -191,8 +183,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			}
 		}
 		// Remove the button to start clean
-		mainFrame.setLayout(
-				new GridLayout(getNumberOfRows(), getNumberOfColumns()));
+		mainFrame.setLayout(new GridLayout(getNumberOfRows(), getNumberOfColumns()));
 
 		buildGameField();
 
@@ -220,36 +211,34 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 
 		if (e.getSource() == newGame) {
 			controller.tell(IController.State.NEW_GAME, self());
-			//controller.startNewGame();
+			// controller.startNewGame();
 		} else if (e.getSource() == loadToDB) {
 			controller.tell("loadDB", self());
-			//controller.loadFromDB();
-		}  else if (e.getSource() == saveToDB) {
+			// controller.loadFromDB();
+		} else if (e.getSource() == saveToDB) {
 			controller.tell("safeDB", self());
-			//controller.saveToDB();
+			// controller.saveToDB();
+		} else if (e.getSource() == couchDB) {
+			// controller.chooseDB(0);
 		}
-		 else if (e.getSource() == couchDB) {
-				//controller.chooseDB(0);
-			}
-		 
-		 
-		 else if (e.getSource() == hibernate) {
-				//controller.chooseDB(1);
-			}
-		 
-		 else if (e.getSource() == quit) {
+
+		else if (e.getSource() == hibernate) {
+			// controller.chooseDB(1);
+		}
+
+		else if (e.getSource() == quit) {
 			controller.tell(IController.State.EXIT_GAME, self());
-			 //controller.quit();
+			// controller.quit();
 		} else if (e.getSource() == help) {
 			controller.tell(IController.State.HELP_TEXT, self());
-			//controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);
+			// controller.setStateAndNotifyObservers(IController.State.HELP_TEXT);
 		} else if (e.getSource() == settingsmenu) {
 			guiSettings.tell(new NewSettingRequest(getNumberOfColumns(), getNumberOfMines(), mainFrame), self());
-			//showSettings();
+			// showSettings();
 		}
 
 	}
-	
+
 	public void updateImpl(IController.State state, long time, String helpText) {
 		if (state == IController.State.ERROR) {
 			messageDialog("Some Error occured! Please Check it");
@@ -257,7 +246,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		}
 
 		switch (state) {
-		
+
 		case NEW_GAME:
 			setEnableButtons(true);
 			break;
@@ -276,8 +265,8 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			break;
 
 		case CHANGE_SETTINGS_ACTIVATED:
-			//showSettings();
-			
+			// showSettings();
+
 			break;
 
 		case CHANGE_SETTINGS_SUCCESS:
@@ -286,7 +275,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			setEnableButtons(true);
 			break;
 		}
-		if (state != IController.State.GAME_LOST){
+		if (state != IController.State.GAME_LOST) {
 			updateGameField();
 		}
 		applySettings();
@@ -308,10 +297,10 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 		if (e.getButton() == MouseEvent.BUTTON1) {
 
 			if (e.getSource() == newGame) {
-				//controller.startNewGame();
+				// controller.startNewGame();
 				controller.tell(IController.State.NEW_GAME, self());
 			} else if (e.getSource() == quit) {
-				//controller.quit();
+				// controller.quit();
 				controller.tell(IController.State.EXIT_GAME, self());
 			} else {
 				revealCell(e);
@@ -344,7 +333,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 			for (int col = 0; col < getNumberOfColumns(); col++) {
 				Object buttonText = e.getSource();
 				if (buttonText.equals(gridAsJButtons[row][col])) {
-					controller.tell(new SetFlagRequest(col, row),self());
+					controller.tell(new SetFlagRequest(col, row), self());
 				}
 
 			}
@@ -366,9 +355,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	private void applySettings() {
 		SwingUtilities.updateComponentTreeUI(mainFrame);
 	}
-	
-	
-	
+
 	public int getNumberOfRows() {
 		return numberOfRows;
 	}
@@ -384,6 +371,7 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	public void setNumberOfColumns(int numberOfColumns) {
 		this.numberOfColumns = numberOfColumns;
 	}
+
 	public int getNumberOfMines() {
 		return numberOfMines;
 	}
@@ -391,6 +379,5 @@ public class GUI extends AbstractActor implements ActionListener, MouseListener 
 	public void setNumberOfMines(int numberOfMines) {
 		this.numberOfMines = numberOfMines;
 	}
-
 
 }

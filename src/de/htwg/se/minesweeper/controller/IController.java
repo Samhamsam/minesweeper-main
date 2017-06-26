@@ -55,9 +55,4 @@ public interface IController {
 
 	IGridDao chooseDB(int db);
 
-	 
-
- 
-
-	 
 }

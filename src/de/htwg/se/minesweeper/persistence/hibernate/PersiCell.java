@@ -46,7 +46,7 @@ public class PersiCell implements Serializable {
 	}
 
 	public PersiCell(boolean hasMine, boolean isFlagged, boolean isRevealed, int surroundingMines, int row, int col) {
-	//	super();
+		// super();
 		this.hasMine = hasMine;
 		this.isFlagged = isFlagged;
 		this.isRevealed = isRevealed;

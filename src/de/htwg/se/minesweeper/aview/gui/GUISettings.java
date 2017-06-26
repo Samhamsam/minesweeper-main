@@ -11,7 +11,7 @@ import akka.actor.ActorRef;
 
 import java.awt.*;
 
-public class GUISettings extends AbstractActor{
+public class GUISettings extends AbstractActor {
 
 	Frame settingsFrame;
 
@@ -26,24 +26,23 @@ public class GUISettings extends AbstractActor{
 	private int newRowColumn;
 	private int newMines;
 
-	//private IAkkaController controller;
+	// private IAkkaController controller;
 	static JSlider rowColSlider = new JSlider(JSlider.HORIZONTAL);
 	static JSlider mineSlider = new JSlider(JSlider.HORIZONTAL);
-	
+
 	ActorRef guiActor;
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder()
-		.match(NewSettingRequest.class, s->{
+		return receiveBuilder().match(NewSettingRequest.class, s -> {
 			initialValueColumnAndRow = s.numRowsAndColumns;
 			initialValueMines = s.numberOfMines;
 			this.settingsFrame = s.mainFrame;
 			run();
-		})
-		.build();
+		}).build();
 	}
-	public GUISettings(ActorRef guiActor){
+
+	public GUISettings(ActorRef guiActor) {
 		this.guiActor = guiActor;
 	}
 
@@ -74,16 +73,16 @@ public class GUISettings extends AbstractActor{
 		newRowColumn = rowColSlider.getValue();
 		newMines = mineSlider.getValue();
 		if (result == JOptionPane.OK_OPTION) {
-			//setController();
+			// setController();
 			guiActor.tell(new NewSettingRequest(newRowColumn, newMines, null), self());
 		}
 
 	}
 
-/*	private void setController() {
-		String answer = "c," + newRowColumn + "," + newMines;
-		//controller.commitNewSettingsAndRestart(newRowColumn, newMines);
-	}*/
-
+	/*
+	 * private void setController() { String answer = "c," + newRowColumn + ","
+	 * + newMines; //controller.commitNewSettingsAndRestart(newRowColumn,
+	 * newMines); }
+	 */
 
 }

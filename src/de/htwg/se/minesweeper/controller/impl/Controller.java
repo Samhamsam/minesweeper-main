@@ -22,7 +22,7 @@ import de.htwg.se.minesweeper.persistence.IGridDao;
  * @author Aiham Abousaleh
  */
 public class Controller extends AbstractActor implements IController {
-	
+
 	private static final String DEFAULT_DIFFICULTY = "intermediate";
 	private static final String DEFAULT_SIZE = "small";
 	private Grid grid;
@@ -34,69 +34,55 @@ public class Controller extends AbstractActor implements IController {
 	private IGridDao dao;
 	private Set<IGridDao> allOfThem;
 	ActorRef notifyRef;
-	
-	public Controller() {		
+
+	public Controller() {
 		startNewGame();
-		List<String> paths = Arrays.asList("/user/mainActor/tui","/user/mainActor/gui");
-		notifyRef =
-				getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
+		List<String> paths = Arrays.asList("/user/mainActor/tui", "/user/mainActor/gui");
+		notifyRef = getContext().actorOf(new BroadcastGroup(paths).props(), "notifyRef");
 		setStateAndNotifyObservers(State.FIRST_START);
 	}
-	
-
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder()
-				.matchEquals(State.EXIT_GAME, s->{
-					quit();
-				})
-				.matchEquals(State.NEW_GAME, s->{
-					startNewGame();
-					notifyObservers();
-				})
-				.matchEquals(State.GAME_LOST, s->{
-					setStateAndNotifyObservers(State.GAME_LOST);
-				})
-				.matchEquals(State.HELP_TEXT, s->{
-					setStateAndNotifyObservers(State.HELP_TEXT);
-				})
-				.matchEquals(State.INFO_TEXT, s->{
-					setStateAndNotifyObservers(State.INFO_TEXT);
-				})
-				.matchEquals(State.ERROR, s->{
-					this.state = State.ERROR;
-				})
-/*				.matchEquals("loadDB", s->{
-					loadFromDB();
-				})
-				.matchEquals("safeDB", s->{
-					loadFromDB();
-				})*/
-				.match(SetFlagRequest.class, s->{
+		return receiveBuilder().matchEquals(State.EXIT_GAME, s -> {
+			quit();
+		}).matchEquals(State.NEW_GAME, s -> {
+			startNewGame();
+			notifyObservers();
+		}).matchEquals(State.GAME_LOST, s -> {
+			setStateAndNotifyObservers(State.GAME_LOST);
+		}).matchEquals(State.HELP_TEXT, s -> {
+			setStateAndNotifyObservers(State.HELP_TEXT);
+		}).matchEquals(State.INFO_TEXT, s -> {
+			setStateAndNotifyObservers(State.INFO_TEXT);
+		}).matchEquals(State.ERROR, s -> {
+			this.state = State.ERROR;
+		})
+				/*
+				 * .matchEquals("loadDB", s->{ loadFromDB(); })
+				 * .matchEquals("safeDB", s->{ loadFromDB(); })
+				 */
+				.match(SetFlagRequest.class, s -> {
 					toggleFlag(s.row, s.col);
-				})
-				.match(RevealCellRequest.class, s->{
-					revealCell(s.row,s.col);
-				})
-				.match(NewSettingRequest.class, s->{
+				}).match(RevealCellRequest.class, s -> {
+					revealCell(s.row, s.col);
+				}).match(NewSettingRequest.class, s -> {
 					commitNewSettingsAndRestart(s.numRowsAndColumns, s.numberOfMines);
-				})
-				.build();
+				}).build();
 	}
-	
+
 	@Override
 	public IGridDao chooseDB(int db) {
 		List<IGridDao> list = new ArrayList<IGridDao>(allOfThem);
 		try {
 			this.dao = list.get(db);
- 		} catch (Exception e) {
+		} catch (Exception e) {
 			state = State.ERROR;
 		} finally {
 			notifyObservers();
 		}
 		System.out.println(list.get(db));
-		return this.dao  ;
+		return this.dao;
 	}
 
 	@Override
@@ -139,7 +125,7 @@ public class Controller extends AbstractActor implements IController {
 		}
 
 		startNewGame(numberOfRowsAndCols, numberOfMines);
-		//notifyObservers();
+		// notifyObservers();
 	}
 
 	@Override
@@ -148,9 +134,8 @@ public class Controller extends AbstractActor implements IController {
 			this.grid = new Grid(numberOfRowsAndCols, numberOfRowsAndCols, numberOfMines);
 			this.state = State.NEW_GAME;
 			this.timeOfGameStartMills = System.currentTimeMillis();
-		} 
-		catch(Exception e) {
-			
+		} catch (Exception e) {
+
 			state = State.ERROR;
 		}
 	}
@@ -298,10 +283,9 @@ public class Controller extends AbstractActor implements IController {
 	 */
 	@Override
 	public void touch() {
-		if (this.grid != null){
+		if (this.grid != null) {
 			notifyObservers();
-		}
-		else
+		} else
 			startNewGame();
 	}
 
@@ -333,11 +317,9 @@ public class Controller extends AbstractActor implements IController {
 	public long getElapsedTimeSeconds() {
 		return elapsedTimeSeconds;
 	}
-	
-	private void notifyObservers(){
+
+	private void notifyObservers() {
 		notifyRef.tell(new UpdateRequest(getState(), getElapsedTimeSeconds(), getHelpText(), getGrid()), self());
 	}
-	
-
 
 }

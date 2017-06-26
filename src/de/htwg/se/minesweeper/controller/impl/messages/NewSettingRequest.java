@@ -7,8 +7,7 @@ public class NewSettingRequest {
 	public int numberOfMines;
 	public JFrame mainFrame;
 
-	public NewSettingRequest(int numRowsAndColumns, int numberOfMines, JFrame mainFrame)  
-	{
+	public NewSettingRequest(int numRowsAndColumns, int numberOfMines, JFrame mainFrame) {
 		this.numRowsAndColumns = numRowsAndColumns;
 		this.numberOfMines = numberOfMines;
 		this.mainFrame = mainFrame;

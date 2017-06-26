@@ -23,11 +23,11 @@ public class PersiGrid implements Serializable {
 	@OneToMany(mappedBy = "persiGrid")
 	@Column(name = "cell")
 	private List<PersiCell> cells;
-	@Column(name="rows")
+	@Column(name = "rows")
 	private int rows;
-	@Column(name="col")
+	@Column(name = "col")
 	private int col;
-	@Column(name="mines")
+	@Column(name = "mines")
 	private int mines;
 
 	public PersiGrid() {

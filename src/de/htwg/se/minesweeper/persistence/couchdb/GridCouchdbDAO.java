@@ -20,7 +20,7 @@ public class GridCouchdbDAO implements IGridDao {
 		db = new CouchDBFactory().connection();
 	}
 
-	private Grid gridFromDB(PersiGrid persiGrid) { 
+	private Grid gridFromDB(PersiGrid persiGrid) {
 
 		Grid grid = new Grid(persiGrid.getRows(), persiGrid.getCol(), persiGrid.getMines());
 		grid.setId(persiGrid.getId());
@@ -40,27 +40,26 @@ public class GridCouchdbDAO implements IGridDao {
 
 	private Cell updateCellInDB(PersiCell cellCouch) {
 		return new Cell(cellCouch.isHasMine(), cellCouch.isFlagged(), cellCouch.isRevealed(),
-				   cellCouch.getSurroundingMines(), cellCouch.getRow(), cellCouch.getCol());
+				cellCouch.getSurroundingMines(), cellCouch.getRow(), cellCouch.getCol());
 
 	}
 
-	private PersiGrid copyGridToDB(Grid grid) { 
+	private PersiGrid copyGridToDB(Grid grid) {
 		if (grid == null) {
 			return null;
 		}
-		PersiGrid persiGrid ;
+		PersiGrid persiGrid;
 		String id = grid.getId();
-	//	String id = UUID.randomUUID().toString();
-		
+		// String id = UUID.randomUUID().toString();
+
 		if (containsGridById(id)) {
 			persiGrid = db.find(PersiGrid.class, id);
-			
-		}
-		else{
-			 persiGrid = new PersiGrid();
+
+		} else {
+			persiGrid = new PersiGrid();
 
 		}
-		
+
 		List<PersiCell> cells = new LinkedList<PersiCell>();
 		for (Cell cell : grid.getCells()) {
 			cells.add(this.cellsToDB(cell));
@@ -121,19 +120,19 @@ public class GridCouchdbDAO implements IGridDao {
 
 		for (Row r : vr.getRows()) {
 			lst.add(getGridById(r.getId()));
-		 
- 		}
- 		
-	 	return lst;
+
+		}
+
+		return lst;
 	}
-	
-	private PersiGrid getTheFirstGridFromRowDB(){
-	 
+
+	private PersiGrid getTheFirstGridFromRowDB() {
+
 		ViewQuery query = new ViewQuery().allDocs();
 		ViewResult vr = db.queryView(query);
-	 	String id = vr.getRows().get(0).getValue();	
-		
-	 	return db.find(PersiGrid.class, id);
+		String id = vr.getRows().get(0).getValue();
+
+		return db.find(PersiGrid.class, id);
 	}
 
 }

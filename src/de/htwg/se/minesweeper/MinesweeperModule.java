@@ -11,14 +11,13 @@ import de.htwg.se.minesweeper.persistence.db4o.GridDb4oDAO;
 import de.htwg.se.minesweeper.persistence.hibernate.GridHibernateDAO;
 
 public class MinesweeperModule extends AbstractModule {
-	 
+
 	@Override
 	protected void configure() {
 		bind(IAkkaController.class).to(AkkaController.class);
 
-
 		Multibinder<IGridDao> mb = Multibinder.newSetBinder(binder(), IGridDao.class);
-		
+
 		mb.addBinding().to(GridCouchdbDAO.class);
 		mb.addBinding().to(GridHibernateDAO.class);
 		mb.addBinding().to(GridDb4oDAO.class);
