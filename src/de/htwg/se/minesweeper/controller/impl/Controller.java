@@ -57,18 +57,13 @@ public class Controller extends AbstractActor implements IController {
 			setStateAndNotifyObservers(State.INFO_TEXT);
 		}).matchEquals(State.ERROR, s -> {
 			this.state = State.ERROR;
-		})
-				/*
-				 * .matchEquals("loadDB", s->{ loadFromDB(); })
-				 * .matchEquals("safeDB", s->{ loadFromDB(); })
-				 */
-				.match(SetFlagRequest.class, s -> {
-					toggleFlag(s.row, s.col);
-				}).match(RevealCellRequest.class, s -> {
-					revealCell(s.row, s.col);
-				}).match(NewSettingRequest.class, s -> {
-					commitNewSettingsAndRestart(s.numRowsAndColumns, s.numberOfMines);
-				}).build();
+		}).match(SetFlagRequest.class, s -> {
+			toggleFlag(s.row, s.col);
+		}).match(RevealCellRequest.class, s -> {
+			revealCell(s.row, s.col);
+		}).match(NewSettingRequest.class, s -> {
+			commitNewSettingsAndRestart(s.numRowsAndColumns, s.numberOfMines);
+		}).build();
 	}
 
 	@Override
