@@ -18,7 +18,7 @@ public class HibernateFactory {
 			// sessionFactory = new
 			// MetadataSources(registry).buildMetadata().buildSessionFactory();
 			// Create a metadata sources using the specified service registry.
-			Metadata metadata = new MetadataSources(registry).getMetadataBuilder().build();
+			final Metadata metadata = new MetadataSources(registry).getMetadataBuilder().build();
 
 			return metadata.getSessionFactoryBuilder().build();
 		} catch (Exception ex) {

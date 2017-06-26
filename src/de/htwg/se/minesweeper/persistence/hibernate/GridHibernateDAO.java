@@ -55,7 +55,7 @@ public class GridHibernateDAO implements IGridDao {
 
 		if (containsGridById(id)) {
 			SessionFactory factory = HibernateFactory.getSessionFactory();
-			Session session = factory.getCurrentSession();
+			final Session session = factory.getCurrentSession();
 			try {
 				if (session != null)
 					if (!session.getTransaction().isActive())
@@ -97,7 +97,7 @@ public class GridHibernateDAO implements IGridDao {
 	@Override
 	public void saveOrUpdateGrid(Grid grid) {
 		SessionFactory factory = HibernateFactory.getSessionFactory();
-		Session session = factory.getCurrentSession();
+		final Session session = factory.getCurrentSession();
 		try {
 			if (session != null)
 				if (!session.getTransaction().isActive())
@@ -124,7 +124,7 @@ public class GridHibernateDAO implements IGridDao {
 	@Override
 	public void deleteGridById(String id) {
 		SessionFactory factory = HibernateFactory.getSessionFactory();
-		Session session = factory.getCurrentSession();
+		final Session session = factory.getCurrentSession();
 		try {
 			PersiGrid persigrid = (PersiGrid) session.get(PersiGrid.class, id);
 
@@ -149,15 +149,13 @@ public class GridHibernateDAO implements IGridDao {
 	public Grid getGridById(String id) {
 
 		SessionFactory factory = HibernateFactory.getSessionFactory();
-		Session session = factory.getCurrentSession();
+		final Session session = factory.getCurrentSession();
 		try {
 			Grid grid = gridFromDB((PersiGrid) session.get(PersiGrid.class, id));
 
 			return grid;
 		} catch (HibernateException ex) {
-
 			throw new RuntimeException(ex.getMessage());
-
 		}
 	}
 
@@ -173,7 +171,7 @@ public class GridHibernateDAO implements IGridDao {
 	public List<Grid> getAllGrids() {
 
 		SessionFactory factory = HibernateFactory.getSessionFactory();
-		Session session = factory.getCurrentSession();
+		final Session session = factory.getCurrentSession();
 
 		if (session != null)
 			if (!session.getTransaction().isActive())

@@ -37,7 +37,7 @@ public final class Minesweeper {
 		}
 
 		tui = new TUI(controller);
-		new GUI(controller);
+		//new GUI(controller);
 		if (controller instanceof IAkkaController) {
 			new AkkaHTTP(controller);
 		}
