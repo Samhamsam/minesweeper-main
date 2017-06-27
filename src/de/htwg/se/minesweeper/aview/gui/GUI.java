@@ -29,7 +29,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 	JMenu selectDB;
 	JMenuItem loadToDB;
 	JMenuItem saveToDB;
-	JMenuItem couchDB;
+	//JMenuItem couchDB;
 	JMenuItem hibernate;
 	JMenuItem db4o;
 
@@ -56,7 +56,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 
 		loadToDB = new JMenuItem("load from DB");
 		saveToDB = new JMenuItem("Save to DB");
-		couchDB = new JMenuItem("use CouchDB");
+		//couchDB = new JMenuItem("use CouchDB");
 		hibernate = new JMenuItem("use Hibernate");
 		db4o = new JMenuItem("use DB4O");
 		settingsmenu = new JMenuItem("Settings");
@@ -67,7 +67,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		menuQuestion.add(help);
 		db.add(loadToDB);
 		db.add(saveToDB);
-		selectDB.add(couchDB);
+		//	selectDB.add(couchDB);
 		selectDB.add(hibernate);
 		selectDB.add(db4o);
 		newGame.addActionListener(this);
@@ -76,7 +76,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 		settingsmenu.addActionListener(this);
 		loadToDB.addActionListener(this);
 		saveToDB.addActionListener(this);
-		couchDB.addActionListener(this);
+		//couchDB.addActionListener(this);
 		hibernate.addActionListener(this);
 		db4o.addActionListener(this);
 		mainFrame.setJMenuBar(menuBar);
@@ -169,14 +169,13 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 			controller.loadFromDB();
 		} else if (e.getSource() == saveToDB) {
 			controller.saveToDB();
-		} else if (e.getSource() == couchDB) {
-			controller.chooseDB(0);
-		}
-
+		} //else if (e.getSource() == couchDB) {
+			//controller.chooseDB(0);//0
+		//}
 		else if (e.getSource() == hibernate) {
-			controller.chooseDB(1);
+			controller.chooseDB(0);//1
 		} else if (e.getSource() == db4o) {
-			controller.chooseDB(2);
+			controller.chooseDB(1);//2
 		}
 
 		else if (e.getSource() == quit) {

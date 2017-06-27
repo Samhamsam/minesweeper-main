@@ -5,7 +5,7 @@
 <hibernate-configuration>
 	<session-factory>
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-		<property name="hibernate.connection.url">jdbc:mysql://bernd.php-friends.de:3306/502_hibernate_test2?createDatabaseIfNotExist=true</property>
+		<property name="hibernate.connection.url">jdbc:mysql://bernd.php-friends.de:3306/502_hibernate_2?createDatabaseIfNotExist=true</property>
 		<!--<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/minesweeper_ma_SS2017?createDatabaseIfNotExist=true</property>-->
 		<property name="hibernate.connection.username">502_hibernate</property>
 		<property name="hibernate.connection.password">hibernate1</property>
