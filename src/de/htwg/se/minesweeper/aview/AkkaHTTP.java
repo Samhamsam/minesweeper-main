@@ -117,7 +117,23 @@ public class AkkaHTTP {
 				          
 
 						return HttpResponse.create().withEntity(prettyJSON(json.toString()));
-				    } 
+				    } else if (uri.path().equals("/setFlag")) {
+						try{
+				          String rowStr = uri.query().get("row").orElse("str");
+				          String colStr = uri.query().get("col").orElse("str");
+				          int row = Integer.parseInt(rowStr);
+				          int col = Integer.parseInt(colStr);
+				          controller.toggleFlag(row, col);
+						}
+						catch(Exception ex){
+							return
+						            HttpResponse.create()
+						              .withEntity("Error. False command\n" + ex);
+						}
+				          
+
+						return HttpResponse.create().withEntity(prettyJSON(json.toString()));
+				    }
 					else {
 						return NOT_FOUND;
 					}
