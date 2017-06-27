@@ -35,7 +35,7 @@ public class Controller extends Observable implements IController {
 		// DB4O 2
 		// COUCHDB 3
 		this.allOfThem = allOfThem;
-		this.dao = chooseDB(2);
+		//this.dao = chooseDB(2);
 
 		startNewGame();
 

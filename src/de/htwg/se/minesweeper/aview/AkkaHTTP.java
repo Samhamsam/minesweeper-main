@@ -1,13 +1,8 @@
 package de.htwg.se.minesweeper.aview;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
-import static j2html.TagCreator.*;
 import javax.json.JsonObject;
 
 import com.google.gson.Gson;
@@ -106,7 +101,24 @@ public class AkkaHTTP {
 						controller.saveToDB();
 						return HttpResponse.create().withEntity(ContentTypes.TEXT_HTML_UTF8, dbString());
 
-					} else {
+					}else if (uri.path().equals("/revealCell")) {
+						try{
+				          String rowStr = uri.query().get("row").orElse("str");
+				          String colStr = uri.query().get("col").orElse("str");
+				          int row = Integer.parseInt(rowStr);
+				          int col = Integer.parseInt(colStr);
+				          controller.revealCell(row, col);
+						}
+						catch(Exception ex){
+							return
+						            HttpResponse.create()
+						              .withEntity("Error. False command\n" + ex);
+						}
+				          
+
+						return HttpResponse.create().withEntity(prettyJSON(json.toString()));
+				    } 
+					else {
 						return NOT_FOUND;
 					}
 				} else {
