@@ -83,8 +83,9 @@ public class AkkaHTTP {
 						return HttpResponse.create().withEntity(controller.getHelpText().toString());
 
 					} else if (uri.path().equals("/")) {
-
-						return HttpResponse.create().withEntity(ContentTypes.TEXT_HTML_UTF8, htmlString());
+						
+						return HttpResponse.create().withEntity(prettyJSON(json.toString()));
+						//return HttpResponse.create().withEntity(ContentTypes.TEXT_HTML_UTF8, htmlString());
 
 					} else if (uri.path().equals("/saveDB4O")) {
 						controller.chooseDB(2);
