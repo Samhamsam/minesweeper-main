@@ -175,7 +175,7 @@ public class GUI extends JFrame implements ActionListener, IObserver, MouseListe
 
 		else if (e.getSource() == hibernate) {
 			controller.chooseDB(1);
-		} else if (e.getSource() == hibernate) {
+		} else if (e.getSource() == db4o) {
 			controller.chooseDB(2);
 		}
 
